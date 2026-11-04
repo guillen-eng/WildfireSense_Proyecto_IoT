@@ -86,6 +86,11 @@ def run_experiment(cfg: dict, nodes: int, mode: str, out_base: Path,
         "nodes": nodes,
         "baseline": "resisto_temperature" if historical is not None else "fully_synthetic",
         "historical_template_sensors": len(historical.ids) if historical is not None else 0,
+        "virtual_step_seconds": float(cfg["virtual_step_seconds"]),
+        "historical_extension_fraction": (
+            round(historical.audit["temperature_point_origins"]["synthetic_extension"] /
+                  (len(historical.ids) * int(cfg["steps"])), 5)
+            if historical is not None else None),
         "resisto_timegrid_applied": historical is not None,
         "historical_template_point_origins": historical.audit["temperature_point_origins"] if historical is not None else None,
         "additional_virtual_sensors_are_synthetic": historical is not None and nodes > len(historical.ids),
@@ -107,6 +112,22 @@ def run_experiment(cfg: dict, nodes: int, mode: str, out_base: Path,
     return summary, run_dir
 
 
+def enforce_historical_coverage(historical: ResistoReference,
+                                max_extension_fraction: float | None) -> float:
+    """Optionally reject an experiment dominated by synthetic extensions."""
+    origins = historical.audit["temperature_point_origins"]
+    total = sum(origins.values())
+    if total == 0:
+        raise ValueError("No virtual historical points")
+    fraction = origins["synthetic_extension"] / total
+    if max_extension_fraction is not None:
+        if not 0 <= max_extension_fraction <= 1:
+            raise ValueError("max extension fraction must be between zero and one")
+        if fraction > max_extension_fraction:
+            raise ValueError(f"Too much synthetic extension: {fraction:.1%} > {max_extension_fraction:.1%}; reduce virtual step or obtain more historical data")
+    return fraction
+
+
 def main():
     parser = argparse.ArgumentParser(description="WildfireSense LoadLab (synthetic experimental) v1")
     parser.add_argument("--config", default="/app/config.json" if Path("/app/config.json").exists() else "config.json")
@@ -116,11 +137,21 @@ def main():
                         help="Use RESISTO historical temperature as a template, other variables synthetic")
     parser.add_argument("--historical-csv", default=None,
                         help="Historical CSV path for --baseline resisto")
+    parser.add_argument("--virtual-step-seconds", type=float, default=None,
+                        help="Optional override of virtual sampling cadence")
+    parser.add_argument("--max-extension-fraction", type=float, default=None,
+                        help="Reject RESISTO run if synthetic extension exceeds this fraction (0..1)")
     parser.add_argument("--publish", action="store_true", help="Publica MQTT REAL (solo TEST); puede provocar alarmas oficiales")
     parser.add_argument("--no-pace", action="store_true", help="Solo offline; no aplicar pausa entre pasos")
     parser.add_argument("--results", default="/app/results" if Path("/app").exists() else "results")
     args = parser.parse_args()
     cfg = json.loads(Path(args.config).read_text(encoding="utf-8"))
+    if args.virtual_step_seconds is not None:
+        if not 0 < args.virtual_step_seconds <= 3600:
+            parser.error("--virtual-step-seconds must be in (0, 3600]")
+        cfg["virtual_step_seconds"] = args.virtual_step_seconds
+    if args.max_extension_fraction is not None and args.baseline != "resisto":
+        parser.error("--max-extension-fraction requires --baseline resisto")
     nodes = args.nodes if args.nodes is not None else int(cfg["nodes"])
     validate_config(cfg, nodes, args.mode)
     historical = None
@@ -136,6 +167,8 @@ def main():
         print("RESISTO: extra virtual nodes reuse five original temperature templates.")
         print("RESISTO: irregular source times normalized; missing tail marked SYNTHETIC.")
         print("RESISTO: point origins", json.dumps(historical.audit["temperature_point_origins"]))
+        extension_fraction = enforce_historical_coverage(historical, args.max_extension_fraction)
+        print(f"RESISTO: synthetic extension {extension_fraction:.1%}; provenance is not wildfire validity")
     publisher = None
     client = None
     if args.publish:
