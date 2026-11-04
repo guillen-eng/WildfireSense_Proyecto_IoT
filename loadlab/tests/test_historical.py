@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 
 from historical import ResistoReference, make_resisto_reading
-from run import run_experiment
+from run import run_experiment, enforce_historical_coverage
 
 ROOT = Path(__file__).resolve().parents[1]
 CFG = json.loads((ROOT / "config.json").read_text(encoding="utf-8"))
@@ -79,7 +79,24 @@ class HistoricalTests(unittest.TestCase):
 
     def test_nonexistent_steps_rejected(self):
         with self.assertRaises(ValueError):
-            ResistoReference(CSV, 73)
+              def test_quality_gate_rejects_120_second_excessive_extension(self):
+        with self.assertRaisesRegex(ValueError, "Too much synthetic extension"):
+            enforce_historical_coverage(self.ref, 0.20)
+
+    def test_30_second_cadence_uses_less_synthetic_extension(self):
+        reference = ResistoReference(CSV, CFG["steps"], virtual_step_seconds=30,
+                                     max_gap_seconds=300, seed=int(CFG["seed"]))
+        self.assertEqual(reference.audit["temperature_point_origins"], {
+            "observed": 10, "interpolated": 282, "synthetic_extension": 68
+        })
+        self.assertLessEqual(enforce_historical_coverage(reference, 0.20), 0.20)
+        custom_cfg = dict(CFG, virtual_step_seconds=30)
+        with tempfile.TemporaryDirectory() as temp:
+            result, _ = run_experiment(custom_cfg, 5, "normal", Path(temp), historical=reference)
+            self.assertEqual(result["virtual_step_seconds"], 30)
+            self.assertEqual(result["historical_extension_fraction"], round(68 / 360, 5))
+
+  ResistoReference(CSV, 73)
 
     def test_50_nodes_are_not_50_historical_sensors(self):
         with tempfile.TemporaryDirectory() as temp:
