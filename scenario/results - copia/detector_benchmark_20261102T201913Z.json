@@ -1,0 +1,279 @@
+{
+  "kind": "offline_statistical_detector_experiment",
+  "method": "Same stored readings and event labels evaluated with independent detector instances",
+  "limitation": "Synthetic perturbations on a small real-data sample, NOT wildfire detection accuracy. Offline results do not measure MQTT latency.",
+  "rows": [
+    {
+      "run_id": "20261102T154537753649Z",
+      "scenario": "sin_evento",
+      "detector": "Z-score",
+      "readings_evaluated": 360,
+      "affected": 0,
+      "detected": 0,
+      "missed": 0,
+      "unexpected_alert_sensors": 0,
+      "alarm_count": 0,
+      "detected_ids": [],
+      "missed_ids": [],
+      "unexpected_ids": [],
+      "alarm_ticks_by_sensor": {},
+      "delay_virtual_min_by_sensor": {},
+      "assumptions": {
+        "cusum_allowance_c": null,
+        "cusum_threshold": null,
+        "cusum_baseline_samples": null,
+        "zscore_min_history": 20,
+        "zscore_threshold": 4.0
+      },
+      "also_alerted_in_normal_control": []
+    },
+    {
+      "run_id": "20261102T154537753649Z",
+      "scenario": "sin_evento",
+      "detector": "CUSUM",
+      "readings_evaluated": 360,
+      "affected": 0,
+      "detected": 0,
+      "missed": 0,
+      "unexpected_alert_sensors": 1,
+      "alarm_count": 1,
+      "detected_ids": [],
+      "missed_ids": [],
+      "unexpected_ids": [
+        "replay_002"
+      ],
+      "alarm_ticks_by_sensor": {
+        "replay_002": [
+          45
+        ]
+      },
+      "delay_virtual_min_by_sensor": {},
+      "assumptions": {
+        "cusum_allowance_c": 0.5,
+        "cusum_threshold": 8.0,
+        "cusum_baseline_samples": 20,
+        "zscore_min_history": null,
+        "zscore_threshold": null
+      },
+      "also_alerted_in_normal_control": []
+    },
+    {
+      "run_id": "20261102T165907969072Z",
+      "scenario": "suave",
+      "detector": "Z-score",
+      "readings_evaluated": 360,
+      "affected": 2,
+      "detected": 2,
+      "missed": 0,
+      "unexpected_alert_sensors": 0,
+      "alarm_count": 2,
+      "detected_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "missed_ids": [],
+      "unexpected_ids": [],
+      "alarm_ticks_by_sensor": {
+        "replay_001": [
+          45
+        ],
+        "replay_002": [
+          46
+        ]
+      },
+      "delay_virtual_min_by_sensor": {
+        "replay_001": 6.0,
+        "replay_002": 2.0
+      },
+      "assumptions": {
+        "cusum_allowance_c": null,
+        "cusum_threshold": null,
+        "cusum_baseline_samples": null,
+        "zscore_min_history": 20,
+        "zscore_threshold": 4.0
+      },
+      "also_alerted_in_normal_control": []
+    },
+    {
+      "run_id": "20261102T165907969072Z",
+      "scenario": "suave",
+      "detector": "CUSUM",
+      "readings_evaluated": 360,
+      "affected": 2,
+      "detected": 2,
+      "missed": 0,
+      "unexpected_alert_sensors": 0,
+      "alarm_count": 2,
+      "detected_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "missed_ids": [],
+      "unexpected_ids": [],
+      "alarm_ticks_by_sensor": {
+        "replay_001": [
+          45
+        ],
+        "replay_002": [
+          45
+        ]
+      },
+      "delay_virtual_min_by_sensor": {
+        "replay_001": 6.0,
+        "replay_002": 0.0
+      },
+      "assumptions": {
+        "cusum_allowance_c": 0.5,
+        "cusum_threshold": 8.0,
+        "cusum_baseline_samples": 20,
+        "zscore_min_history": null,
+        "zscore_threshold": null
+      },
+      "also_alerted_in_normal_control": [
+        "replay_002"
+      ]
+    },
+    {
+      "run_id": "20261102T190310159058Z",
+      "scenario": "gradual",
+      "detector": "Z-score",
+      "readings_evaluated": 360,
+      "affected": 2,
+      "detected": 0,
+      "missed": 2,
+      "unexpected_alert_sensors": 0,
+      "alarm_count": 0,
+      "detected_ids": [],
+      "missed_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "unexpected_ids": [],
+      "alarm_ticks_by_sensor": {},
+      "delay_virtual_min_by_sensor": {},
+      "assumptions": {
+        "cusum_allowance_c": null,
+        "cusum_threshold": null,
+        "cusum_baseline_samples": null,
+        "zscore_min_history": 20,
+        "zscore_threshold": 4.0
+      },
+      "also_alerted_in_normal_control": []
+    },
+    {
+      "run_id": "20261102T190310159058Z",
+      "scenario": "gradual",
+      "detector": "CUSUM",
+      "readings_evaluated": 360,
+      "affected": 2,
+      "detected": 2,
+      "missed": 0,
+      "unexpected_alert_sensors": 0,
+      "alarm_count": 2,
+      "detected_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "missed_ids": [],
+      "unexpected_ids": [],
+      "alarm_ticks_by_sensor": {
+        "replay_002": [
+          45
+        ],
+        "replay_001": [
+          48
+        ]
+      },
+      "delay_virtual_min_by_sensor": {
+        "replay_001": 12.0,
+        "replay_002": 0.0
+      },
+      "assumptions": {
+        "cusum_allowance_c": 0.5,
+        "cusum_threshold": 8.0,
+        "cusum_baseline_samples": 20,
+        "zscore_min_history": null,
+        "zscore_threshold": null
+      },
+      "also_alerted_in_normal_control": [
+        "replay_002"
+      ]
+    },
+    {
+      "run_id": "20261102T144315999546Z",
+      "scenario": "fuerte",
+      "detector": "Z-score",
+      "readings_evaluated": 360,
+      "affected": 2,
+      "detected": 2,
+      "missed": 0,
+      "unexpected_alert_sensors": 0,
+      "alarm_count": 2,
+      "detected_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "missed_ids": [],
+      "unexpected_ids": [],
+      "alarm_ticks_by_sensor": {
+        "replay_001": [
+          43
+        ],
+        "replay_002": [
+          46
+        ]
+      },
+      "delay_virtual_min_by_sensor": {
+        "replay_001": 2.0,
+        "replay_002": 2.0
+      },
+      "assumptions": {
+        "cusum_allowance_c": null,
+        "cusum_threshold": null,
+        "cusum_baseline_samples": null,
+        "zscore_min_history": 20,
+        "zscore_threshold": 4.0
+      },
+      "also_alerted_in_normal_control": []
+    },
+    {
+      "run_id": "20261102T144315999546Z",
+      "scenario": "fuerte",
+      "detector": "CUSUM",
+      "readings_evaluated": 360,
+      "affected": 2,
+      "detected": 2,
+      "missed": 0,
+      "unexpected_alert_sensors": 0,
+      "alarm_count": 2,
+      "detected_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "missed_ids": [],
+      "unexpected_ids": [],
+      "alarm_ticks_by_sensor": {
+        "replay_001": [
+          43
+        ],
+        "replay_002": [
+          45
+        ]
+      },
+      "delay_virtual_min_by_sensor": {
+        "replay_001": 2.0,
+        "replay_002": 0.0
+      },
+      "assumptions": {
+        "cusum_allowance_c": 0.5,
+        "cusum_threshold": 8.0,
+        "cusum_baseline_samples": 20,
+        "zscore_min_history": null,
+        "zscore_threshold": null
+      },
+      "also_alerted_in_normal_control": [
+        "replay_002"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+# Añadir a docker-compose.yml; no modifica servicios ya existentes.
+services:
+  loadlab:
+    build: ./loadlab
+    profiles: [carga]
+    environment:
+      MQTT_HOST: mosquitto
+      MQTT_PORT: "1883"
+    volumes:
+      - ./loadlab/results:/app/results
+    depends_on:
+      - mosquitto
+    restart: "no"

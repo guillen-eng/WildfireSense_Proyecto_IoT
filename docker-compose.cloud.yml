@@ -1,0 +1,16 @@
+# Añadir a docker-compose.yml + docker-compose.edge.yml; no modifica los servicios existentes.
+services:
+  cloud:
+    build: ./cloud
+    depends_on:
+      - mosquitto
+    environment:
+      MQTT_HOST: mosquitto
+      MQTT_PORT: "1883"
+      HTTP_PORT: "8080"
+      CLOUD_DB_PATH: /app/data/alerts.sqlite3
+    ports:
+      - "127.0.0.1:${WILDFIRESENSE_CLOUD_PORT:-8090}:8080"
+    volumes:
+      - ./cloud/data:/app/data
+    restart: unless-stopped

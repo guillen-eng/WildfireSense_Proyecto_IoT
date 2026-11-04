@@ -1,0 +1,20 @@
+# Complemento al proyecto original. NO sustituye los otros compose.
+services:
+  edge:
+    environment:
+      EDGE_MEASUREMENT_FIELD: air_temperature_c
+      EDGE_MEASUREMENT_UNIT: C
+      ALARM_COOLDOWN_SECONDS: "30"
+  scenario:
+    build: ./scenario
+    profiles: [escenario]
+    environment:
+      MQTT_HOST: mosquitto
+      MQTT_PORT: "1883"
+      SCENARIO_CONFIG: /app/config.json
+    volumes:
+      - ./scenario/results:/app/results
+    depends_on:
+      - mosquitto
+      - edge
+    restart: "no"

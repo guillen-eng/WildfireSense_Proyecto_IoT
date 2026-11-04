@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>WildfireSense · Centro de control local</title>
+  <style>
+  :root{font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#eaf2f4;background:#0a131b;font-synthesis:none}*{box-sizing:border-box}body{margin:0}header{padding:30px max(22px,calc((100vw - 1150px)/2));background:linear-gradient(115deg,#112534,#172c30 65%,#263c2c);border-bottom:1px solid #2c444d}.brand{display:flex;align-items:center;gap:14px}.mark{font-size:34px}.eyebrow{text-transform:uppercase;letter-spacing:.18em;font-size:11px;color:#8cb7ac}h1{margin:4px 0 0;font-size:clamp(26px,4vw,38px);font-weight:750;letter-spacing:-.04em}header p{color:#c2d0d4;line-height:1.55;max-width:720px}.page{max-width:1150px;margin:0 auto;padding:24px 22px 70px}.status{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:18px}.pill{border:1px solid #385157;background:#22353a;border-radius:40px;padding:8px 12px;font-size:13px}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#d9aa5e;margin-right:8px}.dot.ok{background:#4fd4a6}.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:22px}.card{background:#14232d;border:1px solid #2d414b;padding:20px;border-radius:15px}.card span{display:block;color:#a9bdc5;font-size:13px}.value{display:block;font-size:34px;font-weight:740;margin-top:8px;letter-spacing:-.04em}.value.critical{color:#ff9c8c}.value.high{color:#ffd28a}h2{font-size:19px;margin:0}.section{background:#13212b;border:1px solid #2d414b;border-radius:15px;overflow:hidden}.sectionhead{padding:20px;display:flex;align-items:center;justify-content:space-between;gap:12px}.hint{font-size:12px;color:#9bb0b9}table{border-collapse:collapse;width:100%}thead{background:#192c36}th{text-align:left;font-size:12px;font-weight:600;letter-spacing:.04em;color:#9fbac4;padding:13px 16px}td{border-top:1px solid #293e46;padding:15px 16px;font-size:13px}td .muted{color:#a1b7c0}.tag{padding:5px 8px;border-radius:6px;font-size:11px;font-weight:750;letter-spacing:.04em}.tag.sos{background:#4e2a2e;color:#ffaaa4}.tag.env{background:#59432a;color:#ffd28a}.tablewrap{overflow-x:auto}#empty{text-align:center;padding:36px;color:#a7bcc6}footer{font-size:12px;color:#90a8b2;line-height:1.6;margin-top:20px}button{padding:8px 12px;border-radius:8px;color:#eaf2f4;background:#274453;border:1px solid #476373;cursor:pointer}button:hover{background:#376071}@media(max-width:720px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}td,th{padding:11px 9px}header{padding:24px 20px}}@media(max-width:420px){.cards{grid-template-columns:1fr 1fr}.value{font-size:27px}}
+  </style>
+</head>
+<body>
+<header>
+ <div class="brand"><div class="mark" aria-hidden="true">🌲</div><div><div class="eyebrow">WildfireSense / IoT + Edge</div><h1>Centro de control</h1></div></div>
+ <p>Alarmas oficiales recibidas desde el Edge mediante MQTT. Persistencia local en SQLite y actualización automática del panel.</p>
+ <div class="status"><div class="pill"><span class="dot" id="mqtt-dot"></span><span id="broker">Conectando al broker...</span></div><div class="pill" id="sync">Sincronizando datos...</div><div class="pill">Entorno de demostración local</div></div>
+</header>
+<main class="page">
+ <div class="cards"><div class="card"><span>Total de alarmas</span><strong class="value" id="total">—</strong></div><div class="card"><span>Alertas ambientales</span><strong class="value high" id="environmental">—</strong></div><div class="card"><span>SOS críticos</span><strong class="value critical" id="sos">—</strong></div><div class="card"><span>Última recepción</span><strong class="value" id="last" style="font-size:19px">—</strong></div></div>
+ <section class="section"><div class="sectionhead"><div><h2>Historial de alarmas</h2><div class="hint">Las más recientes primero · actualización cada 2 segundos</div></div><button id="refresh" type="button">Actualizar</button></div><div class="tablewrap"><table><thead><tr><th>Recibida</th><th>Tipo</th><th>Sensor</th><th>Prioridad</th><th>Proceso Edge</th></tr></thead><tbody id="rows"></tbody></table><div id="empty">Todavía no se han recibido alarmas oficiales.</div></div></section>
+ <footer>Este panel es un receptor central local dentro de Docker, no un servicio Cloud desplegado en Internet. Los SOS y las alertas sintéticas de prueba pueden contener <code>test_only: true</code>. No es un sistema operativo de emergencias ni valida incendios reales.</footer>
+</main>
+<script>
+const byId=id=>document.getElementById(id);
+function dateText(s){if(!s)return '—';const d=new Date(s);return isNaN(d.getTime())?s:d.toLocaleString('es-ES',{hour12:false});}
+function field(parent,name,text){const td=document.createElement('td');td.className=name||'';td.textContent=text;parent.appendChild(td);return td;}
+async function refresh(){try{const [s,a]=await Promise.all([fetch('/api/stats',{cache:'no-store'}),fetch('/api/alerts?limit=100',{cache:'no-store'})]);if(!s.ok||!a.ok)throw new Error('respuesta HTTP');const stats=await s.json(),data=await a.json();byId('total').textContent=stats.total_alerts;byId('environmental').textContent=stats.environmental_alerts;byId('sos').textContent=stats.sos_alerts;byId('last').textContent=dateText(stats.last_received_at);byId('mqtt-dot').classList.toggle('ok',!!stats.mqtt_connected);byId('broker').textContent=stats.mqtt_connected?'MQTT conectado':'MQTT desconectado · reintentando';byId('sync').textContent='Datos actualizados: '+new Date().toLocaleTimeString('es-ES');const tbody=byId('rows');tbody.replaceChildren();byId('empty').hidden=data.alerts.length>0;for(const item of data.alerts){const tr=document.createElement('tr');field(tr,'muted',dateText(item.received_at));const t=field(tr,'',(item.alert_type==='sos_alert'?'SOS CRÍTICO':'AMBIENTAL')+(item.payload&&item.payload.test_only?' · TEST':''));t.className=item.alert_type==='sos_alert'?'tag sos':'tag env';field(tr,'',item.node_id);field(tr,'',item.priority);field(tr,'muted',item.edge_processing_ms===null?'—':item.edge_processing_ms+' ms');tbody.appendChild(tr);}}
+catch(e){byId('sync').textContent='Error al actualizar · reintentando';}}
+byId('refresh').addEventListener('click',refresh);refresh();setInterval(refresh,2000);
+</script>
+</body>
+</html>

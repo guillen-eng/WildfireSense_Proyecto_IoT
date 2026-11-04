@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "seed": 20261103,
+  "nodes": 5,
+  "steps": 72,
+  "virtual_step_seconds": 120,
+  "real_step_seconds": 0.2,
+  "event": {
+    "start_step": 42,
+    "duration_steps": 20,
+    "ramp_steps": 8,
+    "affected_fraction": 0.04,
+    "minimum_affected": 2,
+    "temperature_rise_c": 9.0,
+    "humidity_drop_percentage_points": 14.0,
+    "pm25_rise_ug_m3": 85.0,
+    "co_rise_ppm": 4.0
+  },
+  "experimental_fusion": {
+    "baseline_samples": 20,
+    "consecutive_samples": 2,
+    "minimum_indicators": 2,
+    "thresholds": {
+      "temperature_increase_c": 5.0,
+      "humidity_decrease_percentage_points": 10.0,
+      "pm25_increase_ug_m3": 30.0,
+      "co_increase_ppm": 1.5
+    }
+  }
+}

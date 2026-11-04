@@ -1,0 +1,18 @@
+{
+  "dataset": "data/resisto_sample.csv",
+  "num_sensors": 5,
+  "total_steps": 72,
+  "virtual_step_seconds": 120,
+  "real_step_seconds": 0.2,
+  "event": {
+    "start_step": 42,
+    "duration_steps": 16,
+    "affected_sensors": [
+      "replay_001",
+      "replay_002"
+    ],
+    "second_sensor_delay_steps": 3,
+    "max_temperature_increase_c": 20.0
+  },
+  "recovery_steps": 8
+}

@@ -1,0 +1,17 @@
+# Servicio experimental aislado: escucha el mismo MQTT que el Edge principal.
+# No emite alarmas MQTT, solo trazas en stdout.
+services:
+  edge-shadow:
+    build:
+      context: .
+      dockerfile: shadow/Dockerfile
+    profiles: [shadow]
+    environment:
+      MQTT_HOST: mosquitto
+      MQTT_PORT: "1883"
+      MQTT_READINGS_TOPIC: wildfiresense/readings/#
+    depends_on:
+      - mosquitto
+    volumes:
+      - ./scenario/results:/app/results
+    restart: unless-stopped

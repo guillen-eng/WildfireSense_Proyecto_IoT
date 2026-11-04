@@ -1,0 +1,13 @@
+{
+  "run_id": "20261102T154537753649Z",
+  "dataset": "RESISTO - muestra histórica 2024-11-09",
+  "event_kind": "normal_control_without_injected_event",
+  "event_enabled": false,
+  "start_step": null,
+  "affected_sensors": [],
+  "second_sensor_delay_steps": 3,
+  "duration_steps": 16,
+  "max_temperature_increase_c": 20.0,
+  "virtual_step_seconds": 120,
+  "note": "Esta verdad de referencia queda fuera de los mensajes MQTT."
+}
