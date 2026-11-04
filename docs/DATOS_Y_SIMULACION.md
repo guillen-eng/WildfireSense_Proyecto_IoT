@@ -116,3 +116,65 @@ docker compose -f docker-compose.yml -f docker-compose.loadlab.yml --profile car
 
 Inspeccionar en `loadlab/results/<run_id>/historical_audit.json` → `temperature_point_origins`. Es crucial distinguir las **5 posiciones observadas** de las 70 interpoladas y las 285 extensiones sintéticas antes de presentar conclusiones a Bea.
 
+
+
+## Auditoría estadística RESISTO y control de extensión (v3, 4 noviembre 2026)
+
+**Procedencia:** Zenodo, *Real-Time Dataset of Fire Sensor Measurements Collected During the Resisto Project*, DOI: https://doi.org/10.5281/zenodo.14169469, licencia **CC BY-NC 4.0**. Los números de esta sección se calcularon con el script `loadlab/audit_resisto.py` desde el archivo original y la muestra reducida. La fuente original se mantiene fuera del repositorio por tamaño.
+
+| Métrica | Muestra de 360 filas | CSV original de 497.749 filas |
+|---|---:|---:|
+| Sensores | 5 | 229 |
+| Temperaturas utilizables (filtro 0–55 °C) | 360 | 497.745 |
+| Humedades válidas (0–100 %) | 16 (4,4 %) | 220.653 (44,3 %) |
+| Temperatura mediana | 23,0 °C | 20,0 °C |
+| Temperatura p05–p95 | 18–28 °C | 11–34,1 °C |
+| Huecos superiores a 300 s | 21 | 222.775 |
+| Tramo continuo más largo sin huecos superiores a 300 s | 33,467 min | 90,333 min |
+
+`fire_alert_status` en el CSV original tiene 496.789 ceros, 4 unos y 956 doses. **Son marcas de dispositivo y NO etiquetas verificadas de incendios.** El reporte separa estos estados, pero no los usa como ground truth de detección.
+
+### Por qué no entrenamos todavía con el CSV reducido
+
+La muestra original tiene timestamps irregulares y solo 16 humedades válidas. Al convertir sus 5 series a 72 lecturas virtuales:
+
+| Cadencia virtual | Observaciones exactas | Interpolaciones | Extensión sintética |
+|---|---:|---:|---:|
+| 120 segundos (144 minutos virtuales) | 5 | 70 | 285 (79,2 %) |
+| 30 segundos (36 minutos virtuales) | 10 | 282 | 68 (18,9 %) |
+
+Con una cadencia menor se reduce la extensión, **pero aumenta la interpolación**. Ninguna de ambas operaciones crea nuevas mediciones históricas independientes. No es correcto presentar un entrenamiento/validación sobre tales series como validación de detección de incendios reales.
+
+### Nuevas herramientas y comandos
+
+`loadlab/audit_resisto.py` audita temperatura, disponibilidad de humedad, intervalos, duplicados, percentiles y variaciones térmicas sin necesitar scikit-learn ni datos de incendios etiquetados.
+
+**Auditar solo la muestra accesible en Docker**, sin modificar Cloud o Edge:
+
+```powershell
+docker compose -f docker-compose.yml -f docker-compose.loadlab.yml --profile carga run --rm --no-deps --build --entrypoint python loadlab audit_resisto.py --csv /app/historical-data/resisto_sample.csv
+```
+
+**Regenerar 5 nodos con cadencia virtual de 30 s y bloquear extensiones por encima del 20 %**, totalmente offline:
+
+```powershell
+docker compose -f docker-compose.yml -f docker-compose.loadlab.yml --profile carga run --rm --no-deps --build loadlab --baseline resisto --nodes 5 --mode normal --virtual-step-seconds 30 --max-extension-fraction 0.20 --no-pace
+```
+
+**La misma prueba a 120 s con esa condición tiene que fallar por calidad de datos**; el rechazo es intencional:
+
+```powershell
+docker compose -f docker-compose.yml -f docker-compose.loadlab.yml --profile carga run --rm --no-deps --build loadlab --baseline resisto --nodes 5 --mode normal --virtual-step-seconds 120 --max-extension-fraction 0.20 --no-pace
+```
+
+**Pruebas del código:** `docker compose -f docker-compose.yml -f docker-compose.loadlab.yml --profile carga run --rm --no-deps --build --entrypoint python loadlab -m unittest discover -s tests -v`.
+
+Los resultados registran `virtual_step_seconds`, `historical_extension_fraction` y `historical_template_point_origins`, además del hash del CSV. El límite de 20 % es una condición **explícita de calidad experimental**, no una regla oficial de literatura científica.
+
+### Próximo cambio metodológico antes del modelo ML
+
+- Seleccionar ventanas de entrenamiento de **sensores y fechas diferentes** usando el CSV original, no cinco series repetidas como 500 observaciones independientes.
+- Si se elige 30 s, usarlo de forma coherente en toda comparación de retrasos; la tasa de datos y tiempo virtual cambia.
+- Investigar disponibilidad real de humedad por sensor/sitio, y documentar otras fuentes para PM2.5/CO sin inventar calibración.
+- Separar datasets por origen/fecha/sensor **antes** de inyectar los eventos y asignar semillas de escenarios independientes al conjunto de evaluación.
+- No ajustar parámetros ni la lógica de generación solo para obtener una tasa mayor de detecciones.
