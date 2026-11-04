@@ -83,3 +83,36 @@ Cada ejecución crea una carpeta propia en `loadlab/results/`:
 Los modos `normal`, `mixed_proxy`, `smoke_proxy`, `heat_proxy` y `dust_control` son **escenarios de prueba de software**. Los umbrales en `loadlab/config.json` son experimentales y **no deben describirse como umbrales físicos validados de incendio**. El detector `ExperimentalFusion` dentro de LoadLab es independiente del Edge oficial, que ahora usa Z-score.
 
 **Referencias internas:** `scenario/data/holdout_manifest.json`, `scenario/data/resisto_sample.csv`, `loadlab/config.json` y *Module 3 — Project guidelines*, Track A.
+
+
+## Regularización temporal v2: solución para huecos históricos
+
+El CSV RESISTO tiene sellos temporales reales **irregulares**. Por ejemplo, `replay_004` incluye una lectura de 30 °C y otra de 19 °C separadas por **121,9 minutos**: no deben aparecer como dos mediciones consecutivas separadas por 120 segundos.
+
+El nuevo `loadlab/timegrid.py` aplica, por sensor:
+
+1. Ordenar los timestamps originales y rechazar fechas ambiguas (sin zona horaria) o duplicadas.
+2. Separar **segmentos continuos** donde ningún intervalo supere los **300 segundos**. El valor es un límite metodológico provisional, **no calibrado físicamente**.
+3. Escoger el segmento más largo por duración; establecer su comienzo como origen local del reloj virtual de cada sensor.
+4. Crear puntos cada 120 segundos: un valor es `observed` si coincide exactamente con una observación, `interpolated` si está entre dos observaciones del segmento, y `synthetic_extension` si queda fuera de él.
+5. La extensión posterior se simula con una variación de paso limitada y semilla fija. **No es una predicción meteorológica ni un modelo físico de incendios**.
+6. Mantener `reference_temperature_origin`, `reference_grid_time` y `reference_source_times` en los mensajes. Para interpolaciones, conservar ambos tiempos fuente; para extensión sintética, lista vacía y `source_time: null`.
+7. Registrar el resumen en `historical_audit.json`, `config_used.json` y `summary.json`.
+
+**Auditoría del CSV de noviembre con los parámetros actuales (5 sensores × 72 pasos):** de las **360 posiciones virtuales**, 5 coinciden exactamente con una observación, 70 son interpolaciones y **285 son extensión sintética**. Esta clasificación se refiere a la cuadrícula virtual, **no** niega que el CSV de entrada tenga 360 temperaturas observadas con timestamps irregulares.
+
+La fecha del mensaje `timestamp` es el reloj virtual de LoadLab, no la fecha histórica `reference_grid_time`. Las cuadrículas de distintos sensores **no están sincronizadas con una fecha absoluta común**: utilizamos el inicio del segmento elegido por sensor. Por eso no se puede inferir correlación histórica espacial ni coincidencia real entre sensores de estos resultados.
+
+**Impacto observado en pruebas locales offline:** el escenario térmico pasó de 1/2 a 2/2 detecciones en esta configuración, manteniendo umbrales. Este resultado **no** prueba mayor exactitud frente a incendios reales; sólo cambia el comportamiento bajo la señal sintética temporalmente regularizada. Debe mantenerse la evaluación separada por series/semillas y reportarse el alto porcentaje de extensión sintética.
+
+**Compatibilidad:** el modo por defecto `--baseline synthetic` no se modifica; `--baseline resisto` aplica la cuadrícula v2. El detector de LoadLab sigue siendo **experimental e independiente del Edge oficial** y la ejecución offline no verifica entregas MQTT.
+
+Para probar:
+
+```powershell
+docker compose -f docker-compose.yml -f docker-compose.loadlab.yml --profile carga run --rm --no-deps --build --entrypoint python loadlab -m unittest discover -s tests -v
+docker compose -f docker-compose.yml -f docker-compose.loadlab.yml --profile carga run --rm --no-deps --build loadlab --baseline resisto --nodes 5 --mode heat_proxy --no-pace
+```
+
+Inspeccionar en `loadlab/results/<run_id>/historical_audit.json` → `temperature_point_origins`. Es crucial distinguir las **5 posiciones observadas** de las 70 interpoladas y las 285 extensiones sintéticas antes de presentar conclusiones a Bea.
+
