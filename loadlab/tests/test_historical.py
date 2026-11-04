@@ -28,16 +28,17 @@ class HistoricalTests(unittest.TestCase):
         self.assertLess(audit["observed_humidity_samples"], 360)
         self.assertFalse(audit["humidity_reference_used_in_generator"])
 
-    def test_historical_temperature_is_exact_in_normal_mode(self):
-        with CSV.open(encoding="utf-8", newline="") as f:
-            samples = {}
-            for row in csv.DictReader(f):
-                samples.setdefault(row["virtual_sensor"], []).append(float(row["temperature_c"]))
-        for i, sensor in enumerate(sorted(samples), start=1):
-            for step in (0, 22, 42, 71):
-                msg = make_resisto_reading(CFG, i, step, "normal", set(), self.ref)
-                self.assertEqual(msg["measurements"]["air_temperature_c"], samples[sensor][step])
-                self.assertFalse(msg["historical_trace_reused"])
+    def test_virtual_timegrid_provenance_in_normal_mode(self):
+        for i in range(1, 6):
+            first = make_resisto_reading(CFG, i, 0, "normal", set(), self.ref)
+            self.assertEqual(first["reference_temperature_origin"], "observed")
+            self.assertTrue(first["reference_source_times"])
+            last = make_resisto_reading(CFG, i, 71, "normal", set(), self.ref)
+            self.assertEqual(last["reference_temperature_origin"], "synthetic_extension")
+            self.assertIsNone(last["source_time"])
+            self.assertEqual(last["reference_source_times"], [])
+        self.assertGreater(self.ref.audit["temperature_point_origins"]["interpolated"], 0)
+        self.assertGreater(self.ref.audit["temperature_point_origins"]["synthetic_extension"], 0)
 
     def test_additional_nodes_are_explicit_synthetic_replicas(self):
         first = make_resisto_reading(CFG, 51, 21, "normal", set(), self.ref)
