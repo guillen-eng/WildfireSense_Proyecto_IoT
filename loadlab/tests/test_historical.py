@@ -79,7 +79,9 @@ class HistoricalTests(unittest.TestCase):
 
     def test_nonexistent_steps_rejected(self):
         with self.assertRaises(ValueError):
-              def test_quality_gate_rejects_120_second_excessive_extension(self):
+            ResistoReference(CSV, 73)
+
+    def test_quality_gate_rejects_120_second_excessive_extension(self):
         with self.assertRaisesRegex(ValueError, "Too much synthetic extension"):
             enforce_historical_coverage(self.ref, 0.20)
 
@@ -95,8 +97,6 @@ class HistoricalTests(unittest.TestCase):
             result, _ = run_experiment(custom_cfg, 5, "normal", Path(temp), historical=reference)
             self.assertEqual(result["virtual_step_seconds"], 30)
             self.assertEqual(result["historical_extension_fraction"], round(68 / 360, 5))
-
-  ResistoReference(CSV, 73)
 
     def test_50_nodes_are_not_50_historical_sensors(self):
         with tempfile.TemporaryDirectory() as temp:
