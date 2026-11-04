@@ -1,6 +1,6 @@
 # README_EQUIPO — Guía de trabajo de WildfireSense (desde cero)
 
-Esta guía está pensada para **Joan, Lola, Abel y Yousuf**, incluso si es la primera vez que utilizáis Git, GitHub Desktop, Visual Studio Code y Docker. Seguid el orden. No hace falta saber comandos Git para las operaciones normales.
+Esta guía esta pensada para que incluso si es la primera vez que utilizáis Git, GitHub Desktop, Visual Studio Code y Docker. Seguid el orden. No hace falta saber comandos Git para las operaciones normales.
 
 **El objetivo:** que todos puedan ver el mismo código, avanzar simultáneamente sin sobrescribir cambios y comprobar qué se ha probado realmente.
 
