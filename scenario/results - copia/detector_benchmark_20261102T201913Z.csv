@@ -1,0 +1,9 @@
+﻿scenario,run_id,detector,readings,affected,detected,missed,sensors_with_unexpected_alerts,alarms,alerts_also_present_in_control,delays_virtual_minutes
+sin_evento,20261102T154537753649Z,Z-score,360,0,0,0,0,0,,{}
+sin_evento,20261102T154537753649Z,CUSUM,360,0,0,0,1,1,,{}
+suave,20261102T165907969072Z,Z-score,360,2,2,0,0,2,,"{""replay_001"": 6.0, ""replay_002"": 2.0}"
+suave,20261102T165907969072Z,CUSUM,360,2,2,0,0,2,replay_002,"{""replay_001"": 6.0, ""replay_002"": 0.0}"
+gradual,20261102T190310159058Z,Z-score,360,2,0,2,0,0,,{}
+gradual,20261102T190310159058Z,CUSUM,360,2,2,0,0,2,replay_002,"{""replay_001"": 12.0, ""replay_002"": 0.0}"
+fuerte,20261102T144315999546Z,Z-score,360,2,2,0,0,2,,"{""replay_001"": 2.0, ""replay_002"": 2.0}"
+fuerte,20261102T144315999546Z,CUSUM,360,2,2,0,0,2,replay_002,"{""replay_001"": 2.0, ""replay_002"": 0.0}"

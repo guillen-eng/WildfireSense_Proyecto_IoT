@@ -1,0 +1,23 @@
+{
+  "dataset": "data/zenodo_holdout_octubre.csv",
+  "dataset_label": "Field sensor historical records (2024-10-31; Zenodo source file, no measured wildfire truth)",
+  "source_label": "zenodo_field_replay",
+  "virtual_start": "2024-10-31T10:00:00+01:00",
+  "num_sensors": 5,
+  "total_steps": 72,
+  "virtual_step_seconds": 120,
+  "real_step_seconds": 0.2,
+  "event": {
+    "start_step": 42,
+    "duration_steps": 16,
+    "affected_sensors": [
+      "replay_001",
+      "replay_002"
+    ],
+    "second_sensor_delay_steps": 3,
+    "max_temperature_increase_c": 6.0,
+    "enabled": false,
+    "ramp_steps": 12
+  },
+  "recovery_steps": 8
+}

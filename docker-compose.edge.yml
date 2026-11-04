@@ -1,0 +1,11 @@
+services:
+  edge:
+    build: ./edge
+    environment:
+      MQTT_HOST: mosquitto
+      MQTT_PORT: '1883'
+      TEST_TEMPERATURE_THRESHOLD_C: '26.0'
+      ALARM_COOLDOWN_SECONDS: '30'
+    depends_on:
+      - mosquitto
+    restart: unless-stopped

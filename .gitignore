@@ -1,0 +1,36 @@
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+
+# Credenciales
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Bases de datos y archivos locales
+*.sqlite3
+*.sqlite3-*
+*.db
+cloud/data/
+
+# Resultados experimentales generados
+scenario/results/
+loadlab/results/
+
+# Logs y temporales
+*.log
+*.bak
+*.tmp
+*.zip
+
+# Configuracion local
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,10 @@
+﻿edge-1  | Conectando a mosquitto:1883...
+edge-1  | Edge conectado a Mosquitto
+edge-1  | EDGE_METRICS readings=50 avg_ms=0.072 max_ms=0.207 alerts=0
+edge-1  | EDGE_METRICS readings=100 avg_ms=0.074 max_ms=0.232 alerts=0
+edge-1  | EDGE_METRICS readings=150 avg_ms=0.157 max_ms=1.437 alerts=0
+edge-1  | EDGE_METRICS readings=200 avg_ms=0.194 max_ms=1.437 alerts=0
+edge-1  | EDGE_METRICS readings=250 avg_ms=0.223 max_ms=1.437 alerts=0
+edge-1  | EDGE_METRICS readings=300 avg_ms=0.237 max_ms=1.437 alerts=0
+edge-1  | EDGE_METRICS readings=350 avg_ms=0.258 max_ms=3.825 alerts=0
+edge-1  | ALARMA LOCAL: {"type": "sos_alert", "priority": "critical", "node_id": "SOS_TEST_01", "zone": "trail_A", "reason": "manual_sos", "test_only": true, "edge_processing_ms": 5.728, "generated_at": "2026-11-02T16:37:49.790302+00:00"}

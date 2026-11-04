@@ -1,0 +1,91 @@
+{
+  "comparison_kind": "synthetic_perturbation_functional_check",
+  "event_run": {
+    "run_id": "20261102T144315999546Z",
+    "event_enabled": true,
+    "readings_published": 360,
+    "num_sensors": 5,
+    "affected_detected": [
+      "replay_001",
+      "replay_002"
+    ],
+    "affected_missed": [],
+    "unaffected_without_alert": [
+      "replay_003",
+      "replay_004",
+      "replay_005"
+    ],
+    "sensors_with_unexpected_alarms": [],
+    "environmental_alerts_received": 2,
+    "sensor_details": [
+      {
+        "sensor": "replay_001",
+        "result": "detected",
+        "onset_tick": 42,
+        "alarm_tick": 43,
+        "delay_virtual_minutes": 2.0,
+        "edge_processing_ms": 0.636
+      },
+      {
+        "sensor": "replay_002",
+        "result": "detected",
+        "onset_tick": 45,
+        "alarm_tick": 46,
+        "delay_virtual_minutes": 2.0,
+        "edge_processing_ms": 0.348
+      },
+      {
+        "sensor": "replay_003",
+        "result": "no_alarm"
+      },
+      {
+        "sensor": "replay_004",
+        "result": "no_alarm"
+      },
+      {
+        "sensor": "replay_005",
+        "result": "no_alarm"
+      }
+    ]
+  },
+  "control_run": {
+    "run_id": "20261102T154537753649Z",
+    "event_enabled": false,
+    "readings_published": 360,
+    "num_sensors": 5,
+    "affected_detected": [],
+    "affected_missed": [],
+    "unaffected_without_alert": [
+      "replay_001",
+      "replay_002",
+      "replay_003",
+      "replay_004",
+      "replay_005"
+    ],
+    "sensors_with_unexpected_alarms": [],
+    "environmental_alerts_received": 0,
+    "sensor_details": [
+      {
+        "sensor": "replay_001",
+        "result": "no_alarm"
+      },
+      {
+        "sensor": "replay_002",
+        "result": "no_alarm"
+      },
+      {
+        "sensor": "replay_003",
+        "result": "no_alarm"
+      },
+      {
+        "sensor": "replay_004",
+        "result": "no_alarm"
+      },
+      {
+        "sensor": "replay_005",
+        "result": "no_alarm"
+      }
+    ]
+  },
+  "limitations": "Dos ejecuciones cortas: no mide precision, sensibilidad o tasas de falsas alarmas reales."
+}

@@ -1,0 +1,10 @@
+# Servicio separado para comparar detectores con datos ya guardados.
+# No inicia, reinicia ni modifica los servicios MQTT ni el Edge.
+services:
+  benchmark:
+    build:
+      context: .
+      dockerfile: benchmark/Dockerfile
+    profiles: [benchmark]
+    volumes:
+      - ./scenario/results:/app/results

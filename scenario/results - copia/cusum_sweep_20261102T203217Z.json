@@ -1,0 +1,1015 @@
+{
+  "type": "exploratory_cusum_parameter_sweep",
+  "run_ids": {
+    "control": "20261102T154537753649Z",
+    "suave": "20261102T165907969072Z",
+    "gradual": "20261102T190310159058Z",
+    "fuerte": "20261102T144315999546Z"
+  },
+  "config": {
+    "k_values": [
+      0.5,
+      1.0,
+      1.5,
+      2.0
+    ],
+    "h_values": [
+      8,
+      20,
+      40,
+      60,
+      80
+    ]
+  },
+  "disclaimer": "Se usan los mismos datos para inspección y selección de umbral. No son resultados independientes ni precisión de incendios reales.",
+  "rows": [
+    {
+      "allowance_c": 0.5,
+      "threshold_c_samples": 8,
+      "false_alert_sensors_control": 1,
+      "false_alert_ids_control": [
+        "replay_002"
+      ],
+      "control_alarm_tick_by_sensor": {
+        "replay_002": 45
+      },
+      "suave_alerts_in_event_window": 2,
+      "suave_earlier_than_control": 1,
+      "suave_earlier_ids": [
+        "replay_001"
+      ],
+      "suave_virtual_delays_min": {
+        "replay_001": 6.0
+      },
+      "suave_alarm_tick_by_sensor": {
+        "replay_001": 45,
+        "replay_002": 45
+      },
+      "gradual_alerts_in_event_window": 2,
+      "gradual_earlier_than_control": 1,
+      "gradual_earlier_ids": [
+        "replay_001"
+      ],
+      "gradual_virtual_delays_min": {
+        "replay_001": 12.0
+      },
+      "gradual_alarm_tick_by_sensor": {
+        "replay_002": 45,
+        "replay_001": 48
+      },
+      "fuerte_alerts_in_event_window": 2,
+      "fuerte_earlier_than_control": 1,
+      "fuerte_earlier_ids": [
+        "replay_001"
+      ],
+      "fuerte_virtual_delays_min": {
+        "replay_001": 2.0
+      },
+      "fuerte_alarm_tick_by_sensor": {
+        "replay_001": 43,
+        "replay_002": 45
+      }
+    },
+    {
+      "allowance_c": 0.5,
+      "threshold_c_samples": 20,
+      "false_alert_sensors_control": 1,
+      "false_alert_ids_control": [
+        "replay_002"
+      ],
+      "control_alarm_tick_by_sensor": {
+        "replay_002": 49
+      },
+      "suave_alerts_in_event_window": 2,
+      "suave_earlier_than_control": 2,
+      "suave_earlier_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "suave_virtual_delays_min": {
+        "replay_001": 10.0,
+        "replay_002": 4.0
+      },
+      "suave_alarm_tick_by_sensor": {
+        "replay_001": 47,
+        "replay_002": 47
+      },
+      "gradual_alerts_in_event_window": 2,
+      "gradual_earlier_than_control": 2,
+      "gradual_earlier_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "gradual_virtual_delays_min": {
+        "replay_001": 18.0,
+        "replay_002": 6.0
+      },
+      "gradual_alarm_tick_by_sensor": {
+        "replay_002": 48,
+        "replay_001": 51
+      },
+      "fuerte_alerts_in_event_window": 2,
+      "fuerte_earlier_than_control": 2,
+      "fuerte_earlier_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "fuerte_virtual_delays_min": {
+        "replay_001": 4.0,
+        "replay_002": 2.0
+      },
+      "fuerte_alarm_tick_by_sensor": {
+        "replay_001": 44,
+        "replay_002": 46
+      }
+    },
+    {
+      "allowance_c": 0.5,
+      "threshold_c_samples": 40,
+      "false_alert_sensors_control": 1,
+      "false_alert_ids_control": [
+        "replay_002"
+      ],
+      "control_alarm_tick_by_sensor": {
+        "replay_002": 57
+      },
+      "suave_alerts_in_event_window": 2,
+      "suave_earlier_than_control": 2,
+      "suave_earlier_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "suave_virtual_delays_min": {
+        "replay_001": 18.0,
+        "replay_002": 8.0
+      },
+      "suave_alarm_tick_by_sensor": {
+        "replay_002": 49,
+        "replay_001": 51
+      },
+      "gradual_alerts_in_event_window": 2,
+      "gradual_earlier_than_control": 2,
+      "gradual_earlier_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "gradual_virtual_delays_min": {
+        "replay_001": 28.0,
+        "replay_002": 14.0
+      },
+      "gradual_alarm_tick_by_sensor": {
+        "replay_002": 52,
+        "replay_001": 56
+      },
+      "fuerte_alerts_in_event_window": 2,
+      "fuerte_earlier_than_control": 2,
+      "fuerte_earlier_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "fuerte_virtual_delays_min": {
+        "replay_001": 6.0,
+        "replay_002": 4.0
+      },
+      "fuerte_alarm_tick_by_sensor": {
+        "replay_001": 45,
+        "replay_002": 47
+      }
+    },
+    {
+      "allowance_c": 0.5,
+      "threshold_c_samples": 60,
+      "false_alert_sensors_control": 1,
+      "false_alert_ids_control": [
+        "replay_002"
+      ],
+      "control_alarm_tick_by_sensor": {
+        "replay_002": 62
+      },
+      "suave_alerts_in_event_window": 2,
+      "suave_earlier_than_control": 2,
+      "suave_earlier_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "suave_virtual_delays_min": {
+        "replay_001": 26.0,
+        "replay_002": 14.0
+      },
+      "suave_alarm_tick_by_sensor": {
+        "replay_002": 52,
+        "replay_001": 55
+      },
+      "gradual_alerts_in_event_window": 1,
+      "gradual_earlier_than_control": 1,
+      "gradual_earlier_ids": [
+        "replay_002"
+      ],
+      "gradual_virtual_delays_min": {
+        "replay_002": 18.0
+      },
+      "gradual_alarm_tick_by_sensor": {
+        "replay_002": 54
+      },
+      "fuerte_alerts_in_event_window": 2,
+      "fuerte_earlier_than_control": 2,
+      "fuerte_earlier_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "fuerte_virtual_delays_min": {
+        "replay_001": 8.0,
+        "replay_002": 6.0
+      },
+      "fuerte_alarm_tick_by_sensor": {
+        "replay_001": 46,
+        "replay_002": 48
+      }
+    },
+    {
+      "allowance_c": 0.5,
+      "threshold_c_samples": 80,
+      "false_alert_sensors_control": 1,
+      "false_alert_ids_control": [
+        "replay_002"
+      ],
+      "control_alarm_tick_by_sensor": {
+        "replay_002": 68
+      },
+      "suave_alerts_in_event_window": 1,
+      "suave_earlier_than_control": 1,
+      "suave_earlier_ids": [
+        "replay_002"
+      ],
+      "suave_virtual_delays_min": {
+        "replay_002": 18.0
+      },
+      "suave_alarm_tick_by_sensor": {
+        "replay_002": 54
+      },
+      "gradual_alerts_in_event_window": 1,
+      "gradual_earlier_than_control": 1,
+      "gradual_earlier_ids": [
+        "replay_002"
+      ],
+      "gradual_virtual_delays_min": {
+        "replay_002": 24.0
+      },
+      "gradual_alarm_tick_by_sensor": {
+        "replay_002": 57
+      },
+      "fuerte_alerts_in_event_window": 2,
+      "fuerte_earlier_than_control": 2,
+      "fuerte_earlier_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "fuerte_virtual_delays_min": {
+        "replay_001": 10.0,
+        "replay_002": 8.0
+      },
+      "fuerte_alarm_tick_by_sensor": {
+        "replay_001": 47,
+        "replay_002": 49
+      }
+    },
+    {
+      "allowance_c": 1.0,
+      "threshold_c_samples": 8,
+      "false_alert_sensors_control": 1,
+      "false_alert_ids_control": [
+        "replay_002"
+      ],
+      "control_alarm_tick_by_sensor": {
+        "replay_002": 45
+      },
+      "suave_alerts_in_event_window": 2,
+      "suave_earlier_than_control": 1,
+      "suave_earlier_ids": [
+        "replay_001"
+      ],
+      "suave_virtual_delays_min": {
+        "replay_001": 6.0
+      },
+      "suave_alarm_tick_by_sensor": {
+        "replay_001": 45,
+        "replay_002": 45
+      },
+      "gradual_alerts_in_event_window": 2,
+      "gradual_earlier_than_control": 1,
+      "gradual_earlier_ids": [
+        "replay_001"
+      ],
+      "gradual_virtual_delays_min": {
+        "replay_001": 14.0
+      },
+      "gradual_alarm_tick_by_sensor": {
+        "replay_002": 45,
+        "replay_001": 49
+      },
+      "fuerte_alerts_in_event_window": 2,
+      "fuerte_earlier_than_control": 1,
+      "fuerte_earlier_ids": [
+        "replay_001"
+      ],
+      "fuerte_virtual_delays_min": {
+        "replay_001": 2.0
+      },
+      "fuerte_alarm_tick_by_sensor": {
+        "replay_001": 43,
+        "replay_002": 45
+      }
+    },
+    {
+      "allowance_c": 1.0,
+      "threshold_c_samples": 20,
+      "false_alert_sensors_control": 1,
+      "false_alert_ids_control": [
+        "replay_002"
+      ],
+      "control_alarm_tick_by_sensor": {
+        "replay_002": 51
+      },
+      "suave_alerts_in_event_window": 2,
+      "suave_earlier_than_control": 2,
+      "suave_earlier_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "suave_virtual_delays_min": {
+        "replay_001": 10.0,
+        "replay_002": 4.0
+      },
+      "suave_alarm_tick_by_sensor": {
+        "replay_001": 47,
+        "replay_002": 47
+      },
+      "gradual_alerts_in_event_window": 2,
+      "gradual_earlier_than_control": 2,
+      "gradual_earlier_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "gradual_virtual_delays_min": {
+        "replay_001": 20.0,
+        "replay_002": 8.0
+      },
+      "gradual_alarm_tick_by_sensor": {
+        "replay_002": 49,
+        "replay_001": 52
+      },
+      "fuerte_alerts_in_event_window": 2,
+      "fuerte_earlier_than_control": 2,
+      "fuerte_earlier_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "fuerte_virtual_delays_min": {
+        "replay_001": 4.0,
+        "replay_002": 2.0
+      },
+      "fuerte_alarm_tick_by_sensor": {
+        "replay_001": 44,
+        "replay_002": 46
+      }
+    },
+    {
+      "allowance_c": 1.0,
+      "threshold_c_samples": 40,
+      "false_alert_sensors_control": 1,
+      "false_alert_ids_control": [
+        "replay_002"
+      ],
+      "control_alarm_tick_by_sensor": {
+        "replay_002": 59
+      },
+      "suave_alerts_in_event_window": 2,
+      "suave_earlier_than_control": 2,
+      "suave_earlier_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "suave_virtual_delays_min": {
+        "replay_001": 20.0,
+        "replay_002": 10.0
+      },
+      "suave_alarm_tick_by_sensor": {
+        "replay_002": 50,
+        "replay_001": 52
+      },
+      "gradual_alerts_in_event_window": 2,
+      "gradual_earlier_than_control": 2,
+      "gradual_earlier_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "gradual_virtual_delays_min": {
+        "replay_001": 34.0,
+        "replay_002": 14.0
+      },
+      "gradual_alarm_tick_by_sensor": {
+        "replay_002": 52,
+        "replay_001": 59
+      },
+      "fuerte_alerts_in_event_window": 2,
+      "fuerte_earlier_than_control": 2,
+      "fuerte_earlier_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "fuerte_virtual_delays_min": {
+        "replay_001": 6.0,
+        "replay_002": 4.0
+      },
+      "fuerte_alarm_tick_by_sensor": {
+        "replay_001": 45,
+        "replay_002": 47
+      }
+    },
+    {
+      "allowance_c": 1.0,
+      "threshold_c_samples": 60,
+      "false_alert_sensors_control": 1,
+      "false_alert_ids_control": [
+        "replay_002"
+      ],
+      "control_alarm_tick_by_sensor": {
+        "replay_002": 66
+      },
+      "suave_alerts_in_event_window": 2,
+      "suave_earlier_than_control": 2,
+      "suave_earlier_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "suave_virtual_delays_min": {
+        "replay_001": 30.0,
+        "replay_002": 14.0
+      },
+      "suave_alarm_tick_by_sensor": {
+        "replay_002": 52,
+        "replay_001": 57
+      },
+      "gradual_alerts_in_event_window": 1,
+      "gradual_earlier_than_control": 1,
+      "gradual_earlier_ids": [
+        "replay_002"
+      ],
+      "gradual_virtual_delays_min": {
+        "replay_002": 20.0
+      },
+      "gradual_alarm_tick_by_sensor": {
+        "replay_002": 55
+      },
+      "fuerte_alerts_in_event_window": 2,
+      "fuerte_earlier_than_control": 2,
+      "fuerte_earlier_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "fuerte_virtual_delays_min": {
+        "replay_001": 8.0,
+        "replay_002": 6.0
+      },
+      "fuerte_alarm_tick_by_sensor": {
+        "replay_001": 46,
+        "replay_002": 48
+      }
+    },
+    {
+      "allowance_c": 1.0,
+      "threshold_c_samples": 80,
+      "false_alert_sensors_control": 1,
+      "false_alert_ids_control": [
+        "replay_002"
+      ],
+      "control_alarm_tick_by_sensor": {
+        "replay_002": 71
+      },
+      "suave_alerts_in_event_window": 1,
+      "suave_earlier_than_control": 1,
+      "suave_earlier_ids": [
+        "replay_002"
+      ],
+      "suave_virtual_delays_min": {
+        "replay_002": 20.0
+      },
+      "suave_alarm_tick_by_sensor": {
+        "replay_002": 55
+      },
+      "gradual_alerts_in_event_window": 1,
+      "gradual_earlier_than_control": 1,
+      "gradual_earlier_ids": [
+        "replay_002"
+      ],
+      "gradual_virtual_delays_min": {
+        "replay_002": 24.0
+      },
+      "gradual_alarm_tick_by_sensor": {
+        "replay_002": 57
+      },
+      "fuerte_alerts_in_event_window": 2,
+      "fuerte_earlier_than_control": 2,
+      "fuerte_earlier_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "fuerte_virtual_delays_min": {
+        "replay_001": 10.0,
+        "replay_002": 8.0
+      },
+      "fuerte_alarm_tick_by_sensor": {
+        "replay_001": 47,
+        "replay_002": 49
+      }
+    },
+    {
+      "allowance_c": 1.5,
+      "threshold_c_samples": 8,
+      "false_alert_sensors_control": 1,
+      "false_alert_ids_control": [
+        "replay_002"
+      ],
+      "control_alarm_tick_by_sensor": {
+        "replay_002": 47
+      },
+      "suave_alerts_in_event_window": 2,
+      "suave_earlier_than_control": 2,
+      "suave_earlier_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "suave_virtual_delays_min": {
+        "replay_001": 6.0,
+        "replay_002": 2.0
+      },
+      "suave_alarm_tick_by_sensor": {
+        "replay_001": 45,
+        "replay_002": 46
+      },
+      "gradual_alerts_in_event_window": 2,
+      "gradual_earlier_than_control": 2,
+      "gradual_earlier_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "gradual_virtual_delays_min": {
+        "replay_001": 16.0,
+        "replay_002": 2.0
+      },
+      "gradual_alarm_tick_by_sensor": {
+        "replay_002": 46,
+        "replay_001": 50
+      },
+      "fuerte_alerts_in_event_window": 2,
+      "fuerte_earlier_than_control": 2,
+      "fuerte_earlier_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "fuerte_virtual_delays_min": {
+        "replay_001": 2.0,
+        "replay_002": 0.0
+      },
+      "fuerte_alarm_tick_by_sensor": {
+        "replay_001": 43,
+        "replay_002": 45
+      }
+    },
+    {
+      "allowance_c": 1.5,
+      "threshold_c_samples": 20,
+      "false_alert_sensors_control": 1,
+      "false_alert_ids_control": [
+        "replay_002"
+      ],
+      "control_alarm_tick_by_sensor": {
+        "replay_002": 55
+      },
+      "suave_alerts_in_event_window": 2,
+      "suave_earlier_than_control": 2,
+      "suave_earlier_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "suave_virtual_delays_min": {
+        "replay_001": 12.0,
+        "replay_002": 6.0
+      },
+      "suave_alarm_tick_by_sensor": {
+        "replay_001": 48,
+        "replay_002": 48
+      },
+      "gradual_alerts_in_event_window": 2,
+      "gradual_earlier_than_control": 2,
+      "gradual_earlier_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "gradual_virtual_delays_min": {
+        "replay_001": 22.0,
+        "replay_002": 10.0
+      },
+      "gradual_alarm_tick_by_sensor": {
+        "replay_002": 50,
+        "replay_001": 53
+      },
+      "fuerte_alerts_in_event_window": 2,
+      "fuerte_earlier_than_control": 2,
+      "fuerte_earlier_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "fuerte_virtual_delays_min": {
+        "replay_001": 4.0,
+        "replay_002": 2.0
+      },
+      "fuerte_alarm_tick_by_sensor": {
+        "replay_001": 44,
+        "replay_002": 46
+      }
+    },
+    {
+      "allowance_c": 1.5,
+      "threshold_c_samples": 40,
+      "false_alert_sensors_control": 1,
+      "false_alert_ids_control": [
+        "replay_002"
+      ],
+      "control_alarm_tick_by_sensor": {
+        "replay_002": 63
+      },
+      "suave_alerts_in_event_window": 2,
+      "suave_earlier_than_control": 2,
+      "suave_earlier_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "suave_virtual_delays_min": {
+        "replay_001": 22.0,
+        "replay_002": 10.0
+      },
+      "suave_alarm_tick_by_sensor": {
+        "replay_002": 50,
+        "replay_001": 53
+      },
+      "gradual_alerts_in_event_window": 1,
+      "gradual_earlier_than_control": 1,
+      "gradual_earlier_ids": [
+        "replay_002"
+      ],
+      "gradual_virtual_delays_min": {
+        "replay_002": 16.0
+      },
+      "gradual_alarm_tick_by_sensor": {
+        "replay_002": 53
+      },
+      "fuerte_alerts_in_event_window": 2,
+      "fuerte_earlier_than_control": 2,
+      "fuerte_earlier_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "fuerte_virtual_delays_min": {
+        "replay_001": 6.0,
+        "replay_002": 6.0
+      },
+      "fuerte_alarm_tick_by_sensor": {
+        "replay_001": 45,
+        "replay_002": 48
+      }
+    },
+    {
+      "allowance_c": 1.5,
+      "threshold_c_samples": 60,
+      "false_alert_sensors_control": 1,
+      "false_alert_ids_control": [
+        "replay_002"
+      ],
+      "control_alarm_tick_by_sensor": {
+        "replay_002": 70
+      },
+      "suave_alerts_in_event_window": 1,
+      "suave_earlier_than_control": 1,
+      "suave_earlier_ids": [
+        "replay_002"
+      ],
+      "suave_virtual_delays_min": {
+        "replay_002": 16.0
+      },
+      "suave_alarm_tick_by_sensor": {
+        "replay_002": 53
+      },
+      "gradual_alerts_in_event_window": 1,
+      "gradual_earlier_than_control": 1,
+      "gradual_earlier_ids": [
+        "replay_002"
+      ],
+      "gradual_virtual_delays_min": {
+        "replay_002": 22.0
+      },
+      "gradual_alarm_tick_by_sensor": {
+        "replay_002": 56
+      },
+      "fuerte_alerts_in_event_window": 2,
+      "fuerte_earlier_than_control": 2,
+      "fuerte_earlier_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "fuerte_virtual_delays_min": {
+        "replay_001": 8.0,
+        "replay_002": 6.0
+      },
+      "fuerte_alarm_tick_by_sensor": {
+        "replay_001": 46,
+        "replay_002": 48
+      }
+    },
+    {
+      "allowance_c": 1.5,
+      "threshold_c_samples": 80,
+      "false_alert_sensors_control": 0,
+      "false_alert_ids_control": [],
+      "control_alarm_tick_by_sensor": {},
+      "suave_alerts_in_event_window": 1,
+      "suave_earlier_than_control": 1,
+      "suave_earlier_ids": [
+        "replay_002"
+      ],
+      "suave_virtual_delays_min": {
+        "replay_002": 22.0
+      },
+      "suave_alarm_tick_by_sensor": {
+        "replay_002": 56
+      },
+      "gradual_alerts_in_event_window": 1,
+      "gradual_earlier_than_control": 1,
+      "gradual_earlier_ids": [
+        "replay_002"
+      ],
+      "gradual_virtual_delays_min": {
+        "replay_002": 26.0
+      },
+      "gradual_alarm_tick_by_sensor": {
+        "replay_002": 58
+      },
+      "fuerte_alerts_in_event_window": 2,
+      "fuerte_earlier_than_control": 2,
+      "fuerte_earlier_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "fuerte_virtual_delays_min": {
+        "replay_001": 10.0,
+        "replay_002": 8.0
+      },
+      "fuerte_alarm_tick_by_sensor": {
+        "replay_001": 47,
+        "replay_002": 49
+      }
+    },
+    {
+      "allowance_c": 2.0,
+      "threshold_c_samples": 8,
+      "false_alert_sensors_control": 1,
+      "false_alert_ids_control": [
+        "replay_002"
+      ],
+      "control_alarm_tick_by_sensor": {
+        "replay_002": 49
+      },
+      "suave_alerts_in_event_window": 2,
+      "suave_earlier_than_control": 2,
+      "suave_earlier_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "suave_virtual_delays_min": {
+        "replay_001": 8.0,
+        "replay_002": 2.0
+      },
+      "suave_alarm_tick_by_sensor": {
+        "replay_001": 46,
+        "replay_002": 46
+      },
+      "gradual_alerts_in_event_window": 2,
+      "gradual_earlier_than_control": 2,
+      "gradual_earlier_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "gradual_virtual_delays_min": {
+        "replay_001": 18.0,
+        "replay_002": 4.0
+      },
+      "gradual_alarm_tick_by_sensor": {
+        "replay_002": 47,
+        "replay_001": 51
+      },
+      "fuerte_alerts_in_event_window": 2,
+      "fuerte_earlier_than_control": 2,
+      "fuerte_earlier_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "fuerte_virtual_delays_min": {
+        "replay_001": 2.0,
+        "replay_002": 0.0
+      },
+      "fuerte_alarm_tick_by_sensor": {
+        "replay_001": 43,
+        "replay_002": 45
+      }
+    },
+    {
+      "allowance_c": 2.0,
+      "threshold_c_samples": 20,
+      "false_alert_sensors_control": 1,
+      "false_alert_ids_control": [
+        "replay_002"
+      ],
+      "control_alarm_tick_by_sensor": {
+        "replay_002": 58
+      },
+      "suave_alerts_in_event_window": 2,
+      "suave_earlier_than_control": 2,
+      "suave_earlier_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "suave_virtual_delays_min": {
+        "replay_001": 14.0,
+        "replay_002": 6.0
+      },
+      "suave_alarm_tick_by_sensor": {
+        "replay_002": 48,
+        "replay_001": 49
+      },
+      "gradual_alerts_in_event_window": 2,
+      "gradual_earlier_than_control": 2,
+      "gradual_earlier_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "gradual_virtual_delays_min": {
+        "replay_001": 28.0,
+        "replay_002": 12.0
+      },
+      "gradual_alarm_tick_by_sensor": {
+        "replay_002": 51,
+        "replay_001": 56
+      },
+      "fuerte_alerts_in_event_window": 2,
+      "fuerte_earlier_than_control": 2,
+      "fuerte_earlier_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "fuerte_virtual_delays_min": {
+        "replay_001": 4.0,
+        "replay_002": 2.0
+      },
+      "fuerte_alarm_tick_by_sensor": {
+        "replay_001": 44,
+        "replay_002": 46
+      }
+    },
+    {
+      "allowance_c": 2.0,
+      "threshold_c_samples": 40,
+      "false_alert_sensors_control": 1,
+      "false_alert_ids_control": [
+        "replay_002"
+      ],
+      "control_alarm_tick_by_sensor": {
+        "replay_002": 68
+      },
+      "suave_alerts_in_event_window": 2,
+      "suave_earlier_than_control": 2,
+      "suave_earlier_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "suave_virtual_delays_min": {
+        "replay_001": 26.0,
+        "replay_002": 12.0
+      },
+      "suave_alarm_tick_by_sensor": {
+        "replay_002": 51,
+        "replay_001": 55
+      },
+      "gradual_alerts_in_event_window": 1,
+      "gradual_earlier_than_control": 1,
+      "gradual_earlier_ids": [
+        "replay_002"
+      ],
+      "gradual_virtual_delays_min": {
+        "replay_002": 18.0
+      },
+      "gradual_alarm_tick_by_sensor": {
+        "replay_002": 54
+      },
+      "fuerte_alerts_in_event_window": 2,
+      "fuerte_earlier_than_control": 2,
+      "fuerte_earlier_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "fuerte_virtual_delays_min": {
+        "replay_001": 6.0,
+        "replay_002": 6.0
+      },
+      "fuerte_alarm_tick_by_sensor": {
+        "replay_001": 45,
+        "replay_002": 48
+      }
+    },
+    {
+      "allowance_c": 2.0,
+      "threshold_c_samples": 60,
+      "false_alert_sensors_control": 0,
+      "false_alert_ids_control": [],
+      "control_alarm_tick_by_sensor": {},
+      "suave_alerts_in_event_window": 1,
+      "suave_earlier_than_control": 1,
+      "suave_earlier_ids": [
+        "replay_002"
+      ],
+      "suave_virtual_delays_min": {
+        "replay_002": 18.0
+      },
+      "suave_alarm_tick_by_sensor": {
+        "replay_002": 54
+      },
+      "gradual_alerts_in_event_window": 1,
+      "gradual_earlier_than_control": 1,
+      "gradual_earlier_ids": [
+        "replay_002"
+      ],
+      "gradual_virtual_delays_min": {
+        "replay_002": 24.0
+      },
+      "gradual_alarm_tick_by_sensor": {
+        "replay_002": 57
+      },
+      "fuerte_alerts_in_event_window": 2,
+      "fuerte_earlier_than_control": 2,
+      "fuerte_earlier_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "fuerte_virtual_delays_min": {
+        "replay_001": 8.0,
+        "replay_002": 8.0
+      },
+      "fuerte_alarm_tick_by_sensor": {
+        "replay_001": 46,
+        "replay_002": 49
+      }
+    },
+    {
+      "allowance_c": 2.0,
+      "threshold_c_samples": 80,
+      "false_alert_sensors_control": 0,
+      "false_alert_ids_control": [],
+      "control_alarm_tick_by_sensor": {},
+      "suave_alerts_in_event_window": 1,
+      "suave_earlier_than_control": 1,
+      "suave_earlier_ids": [
+        "replay_002"
+      ],
+      "suave_virtual_delays_min": {
+        "replay_002": 22.0
+      },
+      "suave_alarm_tick_by_sensor": {
+        "replay_002": 56
+      },
+      "gradual_alerts_in_event_window": 1,
+      "gradual_earlier_than_control": 1,
+      "gradual_earlier_ids": [
+        "replay_002"
+      ],
+      "gradual_virtual_delays_min": {
+        "replay_002": 28.0
+      },
+      "gradual_alarm_tick_by_sensor": {
+        "replay_002": 59
+      },
+      "fuerte_alerts_in_event_window": 2,
+      "fuerte_earlier_than_control": 2,
+      "fuerte_earlier_ids": [
+        "replay_001",
+        "replay_002"
+      ],
+      "fuerte_virtual_delays_min": {
+        "replay_001": 12.0,
+        "replay_002": 10.0
+      },
+      "fuerte_alarm_tick_by_sensor": {
+        "replay_001": 48,
+        "replay_002": 50
+      }
+    }
+  ]
+}

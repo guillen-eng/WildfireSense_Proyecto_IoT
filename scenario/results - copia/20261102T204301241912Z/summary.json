@@ -1,0 +1,17 @@
+{
+  "run_id": "20261102T204301241912Z",
+  "event_enabled": true,
+  "published": 360,
+  "environmental_alerts_received": 0,
+  "alerts_total_received": 0,
+  "sensors": [
+    "replay_001",
+    "replay_002",
+    "replay_003",
+    "replay_004",
+    "replay_005"
+  ],
+  "virtual_duration_min": 144.0,
+  "nominal_execution_seconds": 14.4,
+  "notes": "Perturbacion sintetica sobre datos ambientales reales; no incendio real."
+}

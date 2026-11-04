@@ -1,0 +1,109 @@
+{
+  "source_filename": "indendios_timerseries_zenodo_202411151103.csv",
+  "source_sha256": "a2bd769cca5bb4bc7750703f07194fed79d9e3e4d21751d9f59b78f35554e237",
+  "selection": "Rows with fire_alert_status=0, temperature in [0,55], within stated date/site/hour window; select first five eligible distinct sensor IDs sorted lexicographically, take first 72 unique chronological samples per sensor. This does not establish absence of a real wildfire.",
+  "caveats": [
+    "Underlying fire_alert_status is an existing source label, not verified wildfire ground truth.",
+    "Virtual replay uses a fixed 2-minute interval, whereas historical source sampling is irregular.",
+    "Humidity values -1 are set blank (unknown), not imputed.",
+    "No split was used to optimize CUSUM parameters. Holdouts were selected for adequate temporal coverage."
+  ],
+  "cases": {
+    "mayo": {
+      "day": "2024-05-08",
+      "site": "437c652a-4884-4a85-ac3f-e5c2f4b22881",
+      "start": "17:00:00",
+      "end": "20:00:00",
+      "virtual_start": "2024-05-08T17:00:00+02:00",
+      "rows": 360,
+      "source_sensors": [
+        "fw-4n1155-46b38d99630d4e67a4bf546dad",
+        "fw-4n1209-8b177403fcd24d6189bf3fb9fb",
+        "fw-4n1262-1f7f7e54cac9444caffdd9833f",
+        "fw-4n1480-121261ee26454910a69bba1379",
+        "fw-4n1483-aa14563a629442a29e47ccae9a"
+      ],
+      "csv_sha256": "498d4c3e65efffe527778dd2554aab94a8d6c9ec9141f5d69994025fba18676d",
+      "source_ranges": {
+        "fw-4n1155-46b38d99630d4e67a4bf546dad": {
+          "first": "2024-05-08 17:20:08.000 +0200",
+          "last": "2024-05-08 18:36:57.000 +0200",
+          "temperature_min_c": 33.6,
+          "temperature_max_c": 43.7
+        },
+        "fw-4n1209-8b177403fcd24d6189bf3fb9fb": {
+          "first": "2024-05-08 17:24:08.000 +0200",
+          "last": "2024-05-08 18:23:25.000 +0200",
+          "temperature_min_c": 29.8,
+          "temperature_max_c": 37.1
+        },
+        "fw-4n1262-1f7f7e54cac9444caffdd9833f": {
+          "first": "2024-05-08 17:11:38.000 +0200",
+          "last": "2024-05-08 18:20:40.000 +0200",
+          "temperature_min_c": 28.3,
+          "temperature_max_c": 34.4
+        },
+        "fw-4n1480-121261ee26454910a69bba1379": {
+          "first": "2024-05-08 17:24:47.000 +0200",
+          "last": "2024-05-08 18:27:43.000 +0200",
+          "temperature_min_c": 30.0,
+          "temperature_max_c": 34.4
+        },
+        "fw-4n1483-aa14563a629442a29e47ccae9a": {
+          "first": "2024-05-08 17:24:44.000 +0200",
+          "last": "2024-05-08 18:31:48.000 +0200",
+          "temperature_min_c": 27.2,
+          "temperature_max_c": 33.0
+        }
+      }
+    },
+    "octubre": {
+      "day": "2024-10-31",
+      "site": "59eb92f3-2ce1-40e2-b9f7-b",
+      "start": "10:00:00",
+      "end": "13:00:00",
+      "virtual_start": "2024-10-31T10:00:00+01:00",
+      "rows": 360,
+      "source_sensors": [
+        "fw-4n1538-e3c94b70c414462380db939504",
+        "fw-4n1545-f90449fc37bb46d99cb729395d",
+        "fw-4n3049-d584f9410be04c2aacee193f3d",
+        "fw-4n534-7fea0dd169d74c43bec04a4167d",
+        "fw-4n641-1804b2b953514098a84c165e01c"
+      ],
+      "csv_sha256": "39ce909c3151ad48f97f87499e939412edbc78dc1486c322278ead4cab05cb19",
+      "source_ranges": {
+        "fw-4n1538-e3c94b70c414462380db939504": {
+          "first": "2024-10-31 10:26:04.000 +0100",
+          "last": "2024-10-31 11:39:15.000 +0100",
+          "temperature_min_c": 17.0,
+          "temperature_max_c": 23.0
+        },
+        "fw-4n1545-f90449fc37bb46d99cb729395d": {
+          "first": "2024-10-31 10:01:27.000 +0100",
+          "last": "2024-10-31 11:27:58.000 +0100",
+          "temperature_min_c": 15.0,
+          "temperature_max_c": 22.0
+        },
+        "fw-4n3049-d584f9410be04c2aacee193f3d": {
+          "first": "2024-10-31 10:16:29.000 +0100",
+          "last": "2024-10-31 11:22:27.000 +0100",
+          "temperature_min_c": 17.0,
+          "temperature_max_c": 28.0
+        },
+        "fw-4n534-7fea0dd169d74c43bec04a4167d": {
+          "first": "2024-10-31 10:01:27.000 +0100",
+          "last": "2024-10-31 11:23:21.000 +0100",
+          "temperature_min_c": 16.0,
+          "temperature_max_c": 24.0
+        },
+        "fw-4n641-1804b2b953514098a84c165e01c": {
+          "first": "2024-10-31 10:25:56.000 +0100",
+          "last": "2024-10-31 11:33:36.000 +0100",
+          "temperature_min_c": 19.0,
+          "temperature_max_c": 22.0
+        }
+      }
+    }
+  }
+}
