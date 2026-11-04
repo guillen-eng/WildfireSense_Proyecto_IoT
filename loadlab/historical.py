@@ -11,10 +11,12 @@ import statistics
 from collections import defaultdict
 from pathlib import Path
 from generator import _event_profile, make_reading
+from timegrid import prepare_series
 
 
 class ResistoReference:
-    def __init__(self, csv_file: str | Path, steps: int):
+    def __init__(self, csv_file: str | Path, steps: int, *, virtual_step_seconds: float = 120.0,
+                 max_gap_seconds: float = 300.0, seed: int = 0):
         self.path = Path(csv_file)
         self.sha256 = hashlib.sha256(self.path.read_bytes()).hexdigest()
         sequences = defaultdict(list)
@@ -52,6 +54,14 @@ class ResistoReference:
             raise ValueError("Insufficient historical readings per sensor")
         self.rows = {key: sequences[key][:steps] for key in self.ids}
         self.steps = steps
+        self.series = {}
+        temporal_audits = {}
+        for index, key in enumerate(self.ids, start=1):
+            grid, audit = prepare_series(
+                self.rows[key], steps=steps, step_seconds=virtual_step_seconds,
+                max_gap_seconds=max_gap_seconds, seed=seed + index * 10007)
+            self.series[key] = grid
+            temporal_audits[key] = audit
         temperatures = [row["temperature_c"] for rs in self.rows.values() for row in rs]
         humidity_count = sum(row["humidity_observed"] is not None
                              for rs in self.rows.values() for row in rs)
@@ -66,6 +76,15 @@ class ResistoReference:
             "temperature_max_c": max(temperatures),
             "temperature_mean_c": round(statistics.mean(temperatures), 4),
             "historical_timestamps_aligned": False,
+            "historical_data_uses_irregular_source_times": True,
+            "virtual_temporal_grid_seconds": virtual_step_seconds,
+            "max_source_interpolation_gap_seconds": max_gap_seconds,
+            "temporal_preprocessing_by_sensor": temporal_audits,
+            "temperature_point_origins": {
+                origin: sum(a["point_origins"][origin] for a in temporal_audits.values())
+                for origin in ("observed", "interpolated", "synthetic_extension")
+            },
+            "timegrid_notice": "Output timestamps are virtual; interpolation and synthetic extension are not direct observations.",
             "temperature_reference_used_in_generator": True,
             "humidity_reference_used_in_generator": False,
             "pm25_reference_used_in_generator": False,
@@ -77,7 +96,7 @@ class ResistoReference:
         if index < 1 or not 0 <= step < self.steps:
             raise ValueError("Node index or step out of range")
         name = self.ids[(index - 1) % len(self.ids)]
-        return self.rows[name][step], name, index > len(self.ids)
+        return self.series[name][step], name, index > len(self.ids)
 
 
 def make_resisto_reading(cfg: dict, index: int, step: int, mode: str,
@@ -91,7 +110,7 @@ def make_resisto_reading(cfg: dict, index: int, step: int, mode: str,
         temperature += (((index * 19) % 29) - 14) / 20.0 + rng.gauss(0, 0.16)
     temperature = round(temperature, 3)
     baseline = statistics.mean(x["temperature_c"] for x in
-                               reference.rows[trace][:min(20, reference.steps)])
+                               reference.series[trace][:min(20, reference.steps)])
     m = reading["measurements"]
     m["air_temperature_c"] = temperature
     # Hypothetical relationship, NOT fitted to historical humidity.
@@ -110,14 +129,20 @@ def make_resisto_reading(cfg: dict, index: int, step: int, mode: str,
     if mode == "dust_control" and index % 7 == 0:
         m["pm25_ug_m3"] = round(m["pm25_ug_m3"] + profile * 110.0, 3)
     reading.update({
-        "source": "resisto_temperature_anchored_hybrid_synthetic_v1",
-        "source_time": raw["source_time"],
+        "source": "resisto_timegrid_hybrid_synthetic_v2",
+        "source_time": raw["reference_source_times"][0] if len(raw["reference_source_times"]) == 1 else None,
+        "reference_source_times": raw["reference_source_times"],
+        "reference_grid_time": raw["reference_grid_time"],
+        "reference_temperature_origin": raw["temperature_origin"],
         "source_sensor": raw["source_sensor"],
         "reference_trace": trace,
         "historical_trace_reused": reused,
         "measurement_provenance": {
-            "air_temperature_c": ("historical_template_with_possible_synthetic_perturbation"
-                                  if not reused else "synthetic_variant_of_historical_template"),
+            "air_temperature_c": (
+                ("historical_observed_or_interpolated_with_possible_synthetic_injection"
+                 if raw["temperature_origin"] in ("observed", "interpolated")
+                 else "synthetic_extension_from_historical_reference")
+                if not reused else "synthetic_variant_of_" + raw["temperature_origin"]),
             "relative_humidity_pct": "synthetic_hypothesis_not_calibrated",
             "pm25_ug_m3": "synthetic_hypothesis_not_calibrated",
             "co_ppm": "synthetic_hypothesis_not_calibrated"
