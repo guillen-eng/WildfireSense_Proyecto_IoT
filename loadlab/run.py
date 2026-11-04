@@ -69,6 +69,11 @@ def run_experiment(cfg: dict, nodes: int, mode: str, out_base: Path,
     cfg_copy["baseline"] = "resisto_temperature" if historical is not None else "fully_synthetic"
     if historical is not None:
         cfg_copy["historical_reference_sha256"] = historical.sha256
+        cfg_copy["resisto_temporal"] = {
+            "method": "contiguous_window_interpolation_plus_seeded_extension",
+            "virtual_step_seconds": historical.audit["virtual_temporal_grid_seconds"],
+            "max_source_gap_seconds": historical.audit["max_source_interpolation_gap_seconds"],
+        }
     cfg_copy["mode"] = mode
     (run_dir / "config_used.json").write_text(json.dumps(cfg_copy, indent=2), encoding="utf-8")
     detected_positive = sorted(truth_ids.intersection(detection))
@@ -81,6 +86,8 @@ def run_experiment(cfg: dict, nodes: int, mode: str, out_base: Path,
         "nodes": nodes,
         "baseline": "resisto_temperature" if historical is not None else "fully_synthetic",
         "historical_template_sensors": len(historical.ids) if historical is not None else 0,
+        "resisto_timegrid_applied": historical is not None,
+        "historical_template_point_origins": historical.audit["temperature_point_origins"] if historical is not None else None,
         "additional_virtual_sensors_are_synthetic": historical is not None and nodes > len(historical.ids),
         "steps": int(cfg["steps"]),
         "generated_messages": total,
@@ -120,9 +127,15 @@ def main():
     if args.baseline == "resisto":
         default_csv = (Path("/app/historical-data/resisto_sample.csv") if Path("/app").exists()
                        else Path(__file__).resolve().parents[1] / "scenario/data/resisto_sample.csv")
-        historical = ResistoReference(args.historical_csv or default_csv, int(cfg["steps"]))
+        historical = ResistoReference(
+            args.historical_csv or default_csv, int(cfg["steps"]),
+            virtual_step_seconds=float(cfg["virtual_step_seconds"]),
+            max_gap_seconds=float(cfg.get("resisto_temporal", {}).get("max_source_gap_seconds", 300)),
+            seed=int(cfg["seed"]))
         print("RESISTO: only temperature historically anchored; RH, PM2.5 and CO synthetic.")
         print("RESISTO: extra virtual nodes reuse five original temperature templates.")
+        print("RESISTO: irregular source times normalized; missing tail marked SYNTHETIC.")
+        print("RESISTO: point origins", json.dumps(historical.audit["temperature_point_origins"]))
     publisher = None
     client = None
     if args.publish:
