@@ -13,11 +13,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from generator import MODES, affected_ids, make_reading, validate_config
+from historical import ResistoReference, make_resisto_reading
 from rules import ExperimentalFusion
 
 
 def run_experiment(cfg: dict, nodes: int, mode: str, out_base: Path,
-                   publisher=None, pace: bool = False) -> tuple[dict, Path]:
+                   publisher=None, pace: bool = False, historical: ResistoReference | None = None) -> tuple[dict, Path]:
     validate_config(cfg, nodes, mode)
     truth_ids = set(affected_ids(cfg, nodes, mode))
     # Never publish ground truth through MQTT.
@@ -32,7 +33,8 @@ def run_experiment(cfg: dict, nodes: int, mode: str, out_base: Path,
     with (run_dir / "readings.jsonl").open("w", encoding="utf-8") as f:
         for step in range(int(cfg["steps"])):
             for i in range(1, nodes + 1):
-                reading = make_reading(cfg, i, step, mode, truth_ids)
+                reading = (make_resisto_reading(cfg, i, step, mode, truth_ids, historical)
+                           if historical is not None else make_reading(cfg, i, step, mode, truth_ids))
                 payload = json.dumps(reading, separators=(",", ":"), ensure_ascii=False)
                 f.write(payload + "\n")
                 total_bytes += len(payload.encode("utf-8"))
@@ -58,9 +60,15 @@ def run_experiment(cfg: dict, nodes: int, mode: str, out_base: Path,
         "event_duration_steps": int(ev["duration_steps"]) if is_event else None,
         "note": "Etiqueta SOLO para evaluacion offline; no aparece en payload MQTT.",
     }
+    if historical is not None:
+        (run_dir / "historical_audit.json").write_text(
+            json.dumps(historical.audit, indent=2, ensure_ascii=False), encoding="utf-8")
     (run_dir / "ground_truth.json").write_text(json.dumps(truth, indent=2), encoding="utf-8")
     cfg_copy = copy.deepcopy(cfg)
     cfg_copy["nodes"] = nodes
+    cfg_copy["baseline"] = "resisto_temperature" if historical is not None else "fully_synthetic"
+    if historical is not None:
+        cfg_copy["historical_reference_sha256"] = historical.sha256
     cfg_copy["mode"] = mode
     (run_dir / "config_used.json").write_text(json.dumps(cfg_copy, indent=2), encoding="utf-8")
     detected_positive = sorted(truth_ids.intersection(detection))
@@ -71,6 +79,9 @@ def run_experiment(cfg: dict, nodes: int, mode: str, out_base: Path,
         "run_id": run_id,
         "mode": mode,
         "nodes": nodes,
+        "baseline": "resisto_temperature" if historical is not None else "fully_synthetic",
+        "historical_template_sensors": len(historical.ids) if historical is not None else 0,
+        "additional_virtual_sensors_are_synthetic": historical is not None and nodes > len(historical.ids),
         "steps": int(cfg["steps"]),
         "generated_messages": total,
         "generated_payload_bytes": total_bytes,
@@ -94,6 +105,10 @@ def main():
     parser.add_argument("--config", default="/app/config.json" if Path("/app/config.json").exists() else "config.json")
     parser.add_argument("--nodes", type=int, default=None)
     parser.add_argument("--mode", choices=sorted(MODES), default="mixed_proxy")
+    parser.add_argument("--baseline", choices=("synthetic", "resisto"), default="synthetic",
+                        help="Use RESISTO historical temperature as a template, other variables synthetic")
+    parser.add_argument("--historical-csv", default=None,
+                        help="Historical CSV path for --baseline resisto")
     parser.add_argument("--publish", action="store_true", help="Publica MQTT REAL (solo TEST); puede provocar alarmas oficiales")
     parser.add_argument("--no-pace", action="store_true", help="Solo offline; no aplicar pausa entre pasos")
     parser.add_argument("--results", default="/app/results" if Path("/app").exists() else "results")
@@ -101,6 +116,13 @@ def main():
     cfg = json.loads(Path(args.config).read_text(encoding="utf-8"))
     nodes = args.nodes if args.nodes is not None else int(cfg["nodes"])
     validate_config(cfg, nodes, args.mode)
+    historical = None
+    if args.baseline == "resisto":
+        default_csv = (Path("/app/historical-data/resisto_sample.csv") if Path("/app").exists()
+                       else Path(__file__).resolve().parents[1] / "scenario/data/resisto_sample.csv")
+        historical = ResistoReference(args.historical_csv or default_csv, int(cfg["steps"]))
+        print("RESISTO: only temperature historically anchored; RH, PM2.5 and CO synthetic.")
+        print("RESISTO: extra virtual nodes reuse five original temperature templates.")
     publisher = None
     client = None
     if args.publish:
@@ -119,7 +141,7 @@ def main():
     try:
         summary, path = run_experiment(
             cfg, nodes, args.mode, Path(args.results), publisher=publisher,
-            pace=args.publish and not args.no_pace,
+            pace=args.publish and not args.no_pace, historical=historical,
         )
     finally:
         if client is not None:
