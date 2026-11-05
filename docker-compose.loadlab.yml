@@ -8,6 +8,7 @@ services:
       MQTT_PORT: "1883"
     volumes:
       - ./loadlab/results:/app/results
+      - ./scenario/data:/app/historical-data:ro
     depends_on:
       - mosquitto
     restart: "no"
