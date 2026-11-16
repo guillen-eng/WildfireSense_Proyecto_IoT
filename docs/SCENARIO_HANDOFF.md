@@ -1,6 +1,6 @@
 # Interfaz de entrega del compañero de escenarios
 
-Este documento NO crea incendios sintéticos ni supone que ya hay etiquetas. La responsabilidad de producir episodios reproducibles es del compañero.
+El compañero ha entregado un ZIP con nueve escenarios y archivos JSONL/verdad de la **semilla 42**. Se ha preparado un conversor experimental en ml/import_teammate_scenarios.py. La responsabilidad de producir episodios reproducibles con suficientes semillas sigue siendo del compañero. El contrato y las etiquetas todavía requieren aprobación.
 
 **Por cada ejecución entregará:**
 1. readings.jsonl, una lectura JSON por línea con el contrato de docs/MQTT_CONTRACT.md y orden cronológico por nodo, SIN etiquetas.
