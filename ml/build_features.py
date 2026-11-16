@@ -22,7 +22,7 @@ def build(readings_path, truth_path, output_path, window=6, min_samples=3):
             key = (row["run_id"], row["node_id"], str(int(row["seq"])))
             if key in truth:
                 raise ValueError(f"Duplicate truth row for {key}")
-            if row["label"] not in ("0", "1") or row["split"] not in ("train", "test") or not row["group_id"]:
+            if row["label"] not in ("0", "1") or row["split"] not in ("train", "test", "pending") or not row["group_id"]:
                 raise ValueError("Invalid truth label/split/group_id")
             truth[key] = row
     extractor = RollingFeatures(window=window, min_samples=min_samples)
