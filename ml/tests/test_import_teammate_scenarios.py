@@ -63,5 +63,27 @@ class ImportTests(unittest.TestCase):
                 convert(folder / "source.zip", folder / "out")
 
 
+    def test_multi_seed_split_preserves_all_scenarios(self):
+        with tempfile.TemporaryDirectory() as temp:
+            folder = Path(temp)
+            with ZipFile(folder / "seeds.zip", "w") as archive:
+                for seed in (42, 7):
+                    for scenario in ("fuego_lento", "polvo_tractor"):
+                        truth = {
+                            "escenario": scenario, "seed": seed, "nodos": [496],
+                            "alarma_esperada": scenario.startswith("fuego"),
+                            "nodos_detalle": {"496": {"humo_empieza_s": 20, "llega_fuego_s": 40}}
+                            if scenario.startswith("fuego") else {},
+                        }
+                        archive.writestr(f"{seed}/{scenario}.jsonl", "\n".join(
+                            json.dumps(raw(496, secs)) for secs in (0, 10, 20, 30, 40, 50)) + "\n")
+                        archive.writestr(f"{seed}/{scenario}_verdad.json", json.dumps(truth))
+            report = convert(folder / "seeds.zip", folder / "out", test_seeds=[7])
+            self.assertEqual(report["readings_rows"], 24)
+            self.assertEqual(len(report["scenarios"]), 4)
+            self.assertEqual({x["split"] for x in report["scenarios"].values()}, {"train", "test"})
+
+
+
 if __name__ == "__main__":
     unittest.main()
