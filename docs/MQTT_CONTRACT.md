@@ -5,7 +5,7 @@
 - Alerta Edge: wildfiresense/edge/alerts, QoS 1 (al menos una vez; puede duplicarse).
 - SOS: wildfiresense/events/sos, QoS 1, independiente del ML.
 
-**JSON requerido:** schema_version=1, run_id, node_id, seq creciente por nodo/ejecución, type=reading, timestamp UTC de medición, emitted_at UTC de envío, timebase (simulated o wall), source, test_only=true y measurements con pm25_ug_m3, pm10_ug_m3, air_temperature_c, relative_humidity_pct.
+**JSON de telemetría:** schema_version=1, run_id, node_id, seq creciente por nodo/ejecución, type=reading, timestamp UTC de medición, timebase (simulated o wall), source, test_only=true y measurements con pm25_ug_m3, pm10_ug_m3, air_temperature_c, relative_humidity_pct. En publicaciones MQTT reales añadir emitted_at UTC del envío; en datos OFFLINE, si no se conoce ese instante real, omitir emitted_at. El campo original tx de los escenarios es virtual y NO equivale al envío real.
 
 - rx_ts se añade en Edge al recibir, no lo envía el sensor.
 - Las coordenadas y vecindad están en nodes.csv separado por run_id, no se repiten en cada payload.
