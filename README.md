@@ -203,7 +203,7 @@ Los resultados aparecen en `loadlab/results/`. Este comando **no publica mensaje
 
 La opción `--publish` existe, pero **no debe utilizarse como prueba de detección de incendios reales**: transmite mensajes sintéticos y exige un experimento separado, con un broker levantado y métricas verificadas.
 
-## 8. Datos, variables y criterio de detección
+> **Revisión de integración (sin implementar todavía):** consultar [contrato MQTT v1 propuesto](docs/MQTT_CONTRACT_DRAFT.md), [ejemplo JSON de telemetría](docs/examples/telemetry_v1.json) y [plan de revisión/pruebas de la PR #1](docs/PR1_REVIEW_TEST_PLAN.md). No representan cambios ya desplegados en Edge ni en los simuladores.\n\n## 8. Datos, variables y criterio de detección
 
 ### Datos disponibles
 
