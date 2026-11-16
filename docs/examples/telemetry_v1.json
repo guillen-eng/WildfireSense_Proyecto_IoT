@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "run_id": "run_20261116_mixed_seed42",
+  "node_id": "node_0075",
+  "seq": 11,
+  "type": "reading",
+  "timestamp": "2026-11-16T11:28:06.972Z",
+  "emitted_at": "2026-11-16T11:28:06.980Z",
+  "timebase": "simulated",
+  "source": "wildfiresense_simulator_spatial_v2",
+  "test_only": true,
+  "measurements": {
+    "pm25_ug_m3": 6.08,
+    "pm10_ug_m3": 19.0,
+    "air_temperature_c": 26.17,
+    "relative_humidity_pct": 48.91
+  }
+}
