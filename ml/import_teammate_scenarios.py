@@ -158,7 +158,11 @@ def convert(input_path, output_dir, test_seeds=()):
                     "seq": seq, "label": label, "group_id": f"generator_seed_{seed}",
                     "split": split, "scenario": name, "exposure_state": exposure,
                 })
-            report["scenarios"][name] = {"seed": seed, "split": split, "nodes": len(allowed), **counts}
+            report_key = f"{name}_seed_{seed}"
+            if report_key in report["scenarios"]:
+                raise ValueError(f"Duplicate scenario and seed: {report_key}")
+            report["scenarios"][report_key] = {"seed": seed, "scenario": name, "split": split,
+                                                "nodes": len(allowed), **counts}
     report["readings_rows"] = sum(s.get("label_0", 0) + s.get("label_1", 0)
                                   for s in report["scenarios"].values())
     report["label_1"] = sum(s.get("label_1", 0) for s in report["scenarios"].values())
