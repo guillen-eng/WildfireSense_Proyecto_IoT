@@ -6,7 +6,6 @@ services:
     volumes:
       - ./mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
     restart: unless-stopped
-
   simulator:
     profiles: [simulacion]
     build: ./simulator
@@ -15,5 +14,6 @@ services:
     environment:
       MQTT_HOST: mosquitto
       SENSOR_COUNT: "5"
-      INTERVAL_SECONDS: "2"
+      INTERVAL_SECONDS: "10"
+      RUN_ID: "mqtt_demo_run"
     restart: unless-stopped
