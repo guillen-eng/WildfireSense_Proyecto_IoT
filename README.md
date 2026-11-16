@@ -11,7 +11,7 @@
 - `ml/import_teammate_scenarios.py`: importa el ZIP del compañero, convierte su esquema `id/ts/values` a MQTT v1 OFFLINE y conserva etiquetas sintéticas por separado. No publica nada.
 - `ml/build_features.py`: une mensajes JSONL con etiquetas externas por `(run_id,node_id,seq)`; no publica etiquetas en MQTT.
 - `ml/train_random_forest.py`: entrenamiento y evaluación separados por grupos de episodios.
-- `docs/MQTT_CONTRACT.md`, `docs/SCENARIO_HANDOFF.md`: interfaz que debe cumplir el generador del compañero.
+- `docs/MQTT_CONTRACT.md`, `docs/SCENARIO_HANDOFF.md`, `docs/TEAM_SCENARIO_AUDIT.md`: contrato, entrega y auditoría de escenarios.
 
 `scenario/`, `loadlab/`, `shadow/`, `benchmark/`, `cloud/` y los resultados históricos siguen en las ramas/PR previas; se dejan fuera de **esta propuesta minimalista** para no mezclar desarrollos ni borrar historial. La Cloud se reintegrará como PR propia.
 
@@ -51,9 +51,16 @@ py -3.12 -m venv .venv
 .\.venv\Scripts\python.exe -m unittest discover -s ml\tests -v
 ```
 
-El entrenamiento **no se ejecuta hasta recibir etiquetas reales del simulador**, con grupos y particiones separadas, según `docs/SCENARIO_HANDOFF.md`.
+**Ya hemos recibido un ZIP sintético de nueve escenarios, pero solo tiene la semilla 42.** Se puede probar el procesamiento de características, **no evaluar todavía un modelo con entrenamiento/prueba independientes**. El adaptador crea etiquetas de exposición modelada, no verdad-terreno de incendios reales. Ver [auditoría y procedimiento](docs/TEAM_SCENARIO_AUDIT.md) y [requisitos de escenarios](docs/SCENARIO_HANDOFF.md).
 
-Cuando se entreguen `readings.jsonl` (solo telemetría) y `truth.csv` (etiquetas externas):
+Copia el ZIP a `data/Escenarios_WildfireSense_datos.zip` (ruta local ignorada por Git). Desde la raíz del repositorio:
+
+```powershell
+.\\.venv\\Scripts\\python.exe -m ml.import_teammate_scenarios --input data/Escenarios_WildfireSense_datos.zip --output ml/data/semilla42
+.\\.venv\\Scripts\\python.exe -m ml.build_features --readings ml/data/semilla42/readings.jsonl --truth ml/data/semilla42/truth.csv --output ml/data/semilla42/features_pending.csv
+```
+
+Las features se generan, pero `split=pending` impide entrenar todavía. Cuando el compañero entregue suficientes episodios independientes con `split=train/test` verificados, ejecutar:
 
 ```powershell
 .\.venv\Scripts\python.exe -m ml.build_features --readings data/readings.jsonl --truth data/truth.csv --output ml/data/labeled_features.csv
