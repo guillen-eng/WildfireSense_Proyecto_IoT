@@ -116,7 +116,7 @@ def convert(input_path, output_dir, test_seeds=()):
         "synthetic_only": True, "dataset_source": Path(input_path).name,
         "available_seeds": sorted(available_seeds),
         "split_policy": "by generator seed across all scenarios",
-        "scenarios": {}, "skipped_emergency_for_environmental_ml": 0,
+        "scenarios": {}, "skipped_emergency_for_environmental_ml": 0, "excluded_sos_periodic": 0,
         "positive_label_definition": "modelled smoke arrival OR fire-front arrival at a node; never PM threshold",
         "note": "Very weak modeled smoke may not be measurable; no wildfire field ground truth.",
         "offline_only": True,
@@ -139,6 +139,15 @@ def convert(input_path, output_dir, test_seeds=()):
                 raw = json.loads(line)
                 if raw.get("id") not in allowed:
                     raise ValueError(f"Node missing from truth: {name}")
+                if name == "sos_boton":
+                    # SOS is a separate safety path. Excluding only emergency messages
+                    # would create artificial gaps in the periodic stream.
+                    if raw.get("kind") == "emergency":
+                        report["skipped_emergency_for_environmental_ml"] += 1
+                    else:
+                        report["excluded_sos_periodic"] += 1
+                    counts["excluded_from_environmental_ml"] += 1
+                    continue
                 reading = _normalise(raw, name, seed)
                 ident, seq = reading["node_id"], raw["seq"]
                 if ident in last and (seq <= last[ident][0] or raw["ts"] <= last[ident][1]):
