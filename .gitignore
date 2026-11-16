@@ -1,35 +1,22 @@
-
-# Python
 __pycache__/
-*.pyc
+*.py[cod]
 .pytest_cache/
 .venv/
-venv/
-
-# Credenciales
 .env
 .env.*
 !.env.example
-*.pem
-*.key
-
-# Bases de datos y archivos locales
+*.log
 *.sqlite3
-*.sqlite3-*
 *.db
-cloud/data/
-
-# Resultados experimentales generados
+*.joblib
+*.pkl
+ml/data/
+ml/results/
+data/
+outputs/
+simulator/outputs/
 scenario/results/
 loadlab/results/
-
-# Logs y temporales
-*.log
-*.bak
-*.tmp
-*.zip
-
-# Configuracion local
 .vscode/
 .idea/
 .DS_Store
