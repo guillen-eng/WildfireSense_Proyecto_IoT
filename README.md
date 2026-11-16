@@ -8,6 +8,7 @@
 - `simulator/simulator.py`: tráfico MQTT de demostración, **no datos para entrenar**.
 - `edge/main.py`, `edge/logic.py`: Edge y Z-score existentes **sin cambiar su código**; `edge/cusum.py` sirve de baseline alternativo.
 - `edge/features.py`: extracción **causal** de 18 características sobre PM2.5, PM10, temperatura y humedad por sensor.
+- `ml/import_teammate_scenarios.py`: importa el ZIP del compañero, convierte su esquema `id/ts/values` a MQTT v1 OFFLINE y conserva etiquetas sintéticas por separado. No publica nada.
 - `ml/build_features.py`: une mensajes JSONL con etiquetas externas por `(run_id,node_id,seq)`; no publica etiquetas en MQTT.
 - `ml/train_random_forest.py`: entrenamiento y evaluación separados por grupos de episodios.
 - `docs/MQTT_CONTRACT.md`, `docs/SCENARIO_HANDOFF.md`: interfaz que debe cumplir el generador del compañero.
