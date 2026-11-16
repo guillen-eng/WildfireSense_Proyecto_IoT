@@ -30,7 +30,7 @@ Formato original: `id` entero, `ts` y `tx` en milisegundos de tiempo **simulado*
 - `truth.csv`: etiquetas externas por `(run_id,node_id,seq)`, `group_id`, `split` y `exposure_state`.
 - `import_report.json`: auditoría de conversiones, cuentas de clases y escenarios.
 
-Las 12 emergencias no forman parte del entrenamiento ambiental; se validarán por separado como SOS. El adaptador asigna **una etiqueta binaria provisional**: `label=1` después de la **llegada teórica de humo o de frente de fuego** consignada en `nodos_detalle`. `label=0` antes de la exposición o en escenarios no incendiarios. No utiliza el umbral PM2.5=35,5 para etiquetar. Con la semilla 42, el resultado contiene **48.340 positivos y 65.671 negativos**. Esta política de etiquetado necesita aprobación del equipo; el humo modelado puede ser muy débil y no observable en un sensor real. No equivale a una alarma ni a un incendio confirmado.
+Los **551 mensajes del escenario SOS** (539 periódicos y 12 de emergencia) se excluyen por completo del entrenamiento ambiental y se validarán por separado. Excluir solo las emergencias produciría falsos huecos de secuencia. El adaptador asigna **una etiqueta binaria provisional**: `label=1` después de la **llegada teórica de humo o de frente de fuego** consignada en `nodos_detalle`. `label=0` antes de la exposición o en escenarios no incendiarios. No utiliza el umbral PM2.5=35,5 para etiquetar. Con la semilla 42, el resultado para ML contiene **113.472 lecturas**: **48.340 positivos y 65.132 negativos**. Esta política de etiquetado necesita aprobación del equipo; el humo modelado puede ser muy débil y no observable en un sensor real. No equivale a una alarma ni a un incendio confirmado.
 
 ## Comandos PowerShell, desde la raíz de esta rama
 
