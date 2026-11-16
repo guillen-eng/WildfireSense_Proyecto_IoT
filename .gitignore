@@ -34,3 +34,12 @@ loadlab/results/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Resultados locales del simulador nuevo (sin excluir fixtures versionadas)
+outputs/
+simulator/outputs/
+WildfireSense_Simulador/outputs/
+
+# Carpeta de resultados copiada por error en el prototipo antiguo.
+# NOTA: estas reglas no dejan de versionar los ficheros ya existentes.
+scenario/results - copia/
