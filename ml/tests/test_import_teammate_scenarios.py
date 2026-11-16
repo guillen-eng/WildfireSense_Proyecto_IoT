@@ -84,6 +84,24 @@ class ImportTests(unittest.TestCase):
             self.assertEqual({x["split"] for x in report["scenarios"].values()}, {"train", "test"})
 
 
+    def test_sos_is_excluded_from_environmental_training(self):
+        with tempfile.TemporaryDirectory() as temp:
+            folder = Path(temp)
+            messages = [raw(496, 0), raw(496, 10)]
+            messages[1]["kind"] = "emergency"
+            with ZipFile(folder / "sos.zip", "w") as archive:
+                archive.writestr("sos_boton.jsonl", "\n".join(
+                    json.dumps(message) for message in messages) + "\n")
+                archive.writestr("sos_boton_verdad.json", json.dumps({
+                    "escenario": "sos_boton", "seed": 42, "nodos": [496],
+                    "alarma_esperada": True, "t0_s": 10,
+                }))
+            report = convert(folder / "sos.zip", folder / "out")
+            self.assertEqual(report["readings_rows"], 0)
+            self.assertEqual(report["skipped_emergency_for_environmental_ml"], 1)
+            self.assertEqual(report["excluded_sos_periodic"], 1)
+
+
 
 if __name__ == "__main__":
     unittest.main()
