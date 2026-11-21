@@ -1,0 +1,26 @@
+{
+ "escenario": "fallo_congelado",
+ "descripcion": "Sensor congelado en el nodo 100 de 03:00 a 03:05: repite exactamente los mismos valores.",
+ "seed": 42,
+ "periodo_s": 10,
+ "inicio_ventana": 9000,
+ "fin_ventana": 12600,
+ "nota_tiempo": "segundos desde las 00:00 del dia simulado; ts = 1784073600000 + segundos*1000 (ms)",
+ "mensajes": 3240,
+ "nodos": [
+  67,
+  68,
+  69,
+  99,
+  100,
+  101,
+  131,
+  132,
+  133
+ ],
+ "t0_s": 10800,
+ "nodo_evento": 100,
+ "alarma_esperada": false,
+ "estado_esperado_nodo": "SOSPECHOSO",
+ "criterio": "El nodo 100 pasa a SOSPECHOSO tras N lecturas iguales (propuesta N=10). No es alarma de fuego."
+}

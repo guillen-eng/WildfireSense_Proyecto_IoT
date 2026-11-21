@@ -1,0 +1,6 @@
+# Complemento de recursos para ensayos comparables (solo limita Edge).
+# docker compose -f docker-compose.yml -f docker-compose.edge-limits.yml up -d --build
+services:
+  edge:
+    cpus: 0.5
+    mem_limit: 512m

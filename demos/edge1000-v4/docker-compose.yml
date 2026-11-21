@@ -1,0 +1,80 @@
+name: wildfiresense-edge-ai
+x-runtime: &runtime
+  build:
+    context: .
+    target: runtime
+  image: wildfiresense-edge-ai:local
+  environment:
+    MQTT_HOST: mosquitto
+    MQTT_PORT: "1883"
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2.0.21
+    ports: ["127.0.0.1:1883:1883"]
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+    ulimits:
+      nofile: {soft: 8192, hard: 8192}
+    healthcheck:
+      test: ["CMD", "mosquitto_pub", "-h", "127.0.0.1", "-t", "health/broker", "-m", "1"]
+      interval: 3s
+      timeout: 2s
+      retries: 12
+  edge:
+    <<: *runtime
+    depends_on:
+      mosquitto: {condition: service_healthy}
+    volumes:
+      - edge_state:/app/state
+      - ./models:/app/models:ro
+    restart: unless-stopped
+  cloud:
+    <<: *runtime
+    command: ["python","-m","cloud.app"]
+    depends_on:
+      mosquitto: {condition: service_healthy}
+    environment:
+      MQTT_HOST: mosquitto
+      CLOUD_DB_PATH: /app/state/cloud.sqlite
+    ports: ["127.0.0.1:8090:8080"]
+    volumes: [cloud_state:/app/state]
+    restart: unless-stopped
+  simulator:
+    <<: *runtime
+    profiles: ["demo"]
+    command: ["python","-m","lab.mqtt_run"]
+    depends_on:
+      mosquitto: {condition: service_healthy}
+      edge: {condition: service_started}
+    ulimits:
+      nofile: {soft: 8192, hard: 8192}
+  trainer:
+    profiles: ["training"]
+    build: {context: ., target: training}
+    volumes:
+      - ./candidate:/exchange
+  retrain:
+    profiles: ["periodic"]
+    build: {context: ., target: training}
+    command: ["python","-m","lab.refresh"]
+    volumes:
+      - ./candidate:/exchange
+    restart: unless-stopped
+  validator:
+    <<: *runtime
+    profiles: ["training"]
+    command: ["python", "-m", "lab.model_gate", "--candidate", "/exchange/candidate.json", "--baseline", "/app/models/forest.json", "--out", "/exchange/gate_report.json"]
+    volumes:
+      - ./candidate:/exchange
+      - ./models:/app/models:ro
+  promote:
+    <<: *runtime
+    profiles: ["training"]
+    command: ["python", "-m", "lab.model_gate", "--candidate", "/exchange/candidate.json", "--baseline", "/app/models/forest.json", "--out", "/app/resultados/model_gate_last.json", "--promote"]
+    volumes:
+      - ./candidate:/exchange:ro
+      - ./models:/app/models
+      - ./resultados:/app/resultados
+volumes:
+  edge_state:
+  cloud_state:

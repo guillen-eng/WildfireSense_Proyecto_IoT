@@ -1,0 +1,62 @@
+{
+  "source": "resultados/episodios_test.csv",
+  "caveat": "Semillas sinteticas reservadas; no es validacion de incendios reales",
+  "methods": {
+    "ml": {
+      "fire_episodes": 60,
+      "total_detected": 60,
+      "negative_episodes": 120,
+      "negative_with_suspicion": 0,
+      "horizons_seconds": {
+        "300": {
+          "detected": 30,
+          "total": 60,
+          "recall": 0.5
+        },
+        "900": {
+          "detected": 45,
+          "total": 60,
+          "recall": 0.75
+        },
+        "1800": {
+          "detected": 59,
+          "total": 60,
+          "recall": 0.9833
+        },
+        "3600": {
+          "detected": 60,
+          "total": 60,
+          "recall": 1.0
+        }
+      }
+    },
+    "rules": {
+      "fire_episodes": 60,
+      "total_detected": 59,
+      "negative_episodes": 120,
+      "negative_with_suspicion": 15,
+      "horizons_seconds": {
+        "300": {
+          "detected": 17,
+          "total": 60,
+          "recall": 0.2833
+        },
+        "900": {
+          "detected": 30,
+          "total": 60,
+          "recall": 0.5
+        },
+        "1800": {
+          "detected": 32,
+          "total": 60,
+          "recall": 0.5333
+        },
+        "3600": {
+          "detected": 50,
+          "total": 60,
+          "recall": 0.8333
+        }
+      }
+    }
+  }
+}

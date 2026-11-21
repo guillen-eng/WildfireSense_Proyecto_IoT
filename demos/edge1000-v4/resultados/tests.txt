@@ -1,0 +1,28 @@
+test_alerts_endpoint_filters_and_stats (test_cloud_legacy.HttpTests.test_alerts_endpoint_filters_and_stats) ... ok
+test_api_health_connection (test_cloud_legacy.HttpTests.test_api_health_connection) ... ok
+test_dashboard_renders (test_cloud_legacy.HttpTests.test_dashboard_renders) ... ok
+test_invalid_query_and_missing_path (test_cloud_legacy.HttpTests.test_invalid_query_and_missing_path) ... ok
+test_concurrent_ingest (test_cloud_legacy.StoreTests.test_concurrent_ingest) ... ok
+test_dedup_qos1_and_json_order (test_cloud_legacy.StoreTests.test_dedup_qos1_and_json_order) ... ok
+test_limit_and_order (test_cloud_legacy.StoreTests.test_limit_and_order) ... ok
+test_persists_after_store_restart (test_cloud_legacy.StoreTests.test_persists_after_store_restart) ... ok
+test_realistic_edge_alert_payload (test_cloud_legacy.StoreTests.test_realistic_edge_alert_payload) ... ok
+test_reject_invalid_topic_and_payload (test_cloud_legacy.StoreTests.test_reject_invalid_topic_and_payload) ... ok
+test_store_alarm_and_stats (test_cloud_legacy.StoreTests.test_store_alarm_and_stats) ... ok
+test_store_robust_to_quotes (test_cloud_legacy.StoreTests.test_store_robust_to_quotes) ... ok
+test_store_sos_and_filter (test_cloud_legacy.StoreTests.test_store_sos_and_filter) ... ok
+test_grid_edges_and_fire_confirmation (test_edge.EdgeTests.test_grid_edges_and_fire_confirmation) ... ok
+test_label_injection_topic_and_invalid_pm (test_edge.EdgeTests.test_label_injection_topic_and_invalid_pm) ... ok
+test_mqtt_header_boundary (test_edge.EdgeTests.test_mqtt_header_boundary) ... ok
+test_node_identity_and_causality (test_edge.EdgeTests.test_node_identity_and_causality) ... ok
+test_promote_and_reject_corrupt_model (test_edge.EdgeTests.test_promote_and_reject_corrupt_model) ... ok
+test_same_aggregate_for_both_routes (test_edge.EdgeTests.test_same_aggregate_for_both_routes) ... ok
+test_silence_and_recovery (test_edge.EdgeTests.test_silence_and_recovery) ... ok
+test_sos_independent_even_before_any_history (test_edge.EdgeTests.test_sos_independent_even_before_any_history) ... ok
+test_store_and_forward_survives_restart (test_edge.EdgeTests.test_store_and_forward_survives_restart) ... ok
+
+----------------------------------------------------------------------
+Ran 22 tests in 2.157s
+
+OK
+Modelo promovido rf-a288fc78989a

@@ -1,0 +1,20 @@
+{
+  "publisher_to_broker": {
+    "tcp_stream_bytes": 9795,
+    "type_1_bytes": 25,
+    "type_1_count": 1,
+    "type_3_bytes": 9768,
+    "type_3_count": 26,
+    "publish_payload_bytes": 8812,
+    "publish_overhead_bytes": 956,
+    "type_14_bytes": 2,
+    "type_14_count": 1
+  },
+  "broker_to_publisher": {
+    "tcp_stream_bytes": 8,
+    "type_2_bytes": 4,
+    "type_2_count": 1,
+    "type_4_bytes": 4,
+    "type_4_count": 1
+  }
+}

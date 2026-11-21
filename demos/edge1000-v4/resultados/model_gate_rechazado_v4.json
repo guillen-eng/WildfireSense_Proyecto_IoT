@@ -1,0 +1,91 @@
+{
+  "gate": "synthetic_validation_v1",
+  "generated_at": "2026-11-20T19:20:30.372887+00:00",
+  "validation_seeds": [
+    301,
+    302,
+    303,
+    304,
+    305,
+    306
+  ],
+  "baseline_model": "rf-a288fc78989a",
+  "candidate_model": "rf-ce396a5fd4c2",
+  "same_version": false,
+  "baseline": {
+    "model": "rf-a288fc78989a",
+    "seeds": [
+      301,
+      302,
+      303,
+      304,
+      305,
+      306
+    ],
+    "episode_count": 36,
+    "samples": 104915,
+    "accuracy": 0.8135728923414193,
+    "macro_f1": 0.7602814239397185,
+    "ml": {
+      "detected": 12,
+      "fires": 12,
+      "mean_delay_s": 629.99,
+      "false_positive_episodes": 0,
+      "negative_episodes": 24,
+      "pre_ignition": 0
+    },
+    "rules": {
+      "detected": 12,
+      "fires": 12,
+      "mean_delay_s": 2012.53,
+      "false_positive_episodes": 2,
+      "negative_episodes": 24,
+      "pre_ignition": 0
+    }
+  },
+  "candidate": {
+    "model": "rf-ce396a5fd4c2",
+    "seeds": [
+      301,
+      302,
+      303,
+      304,
+      305,
+      306
+    ],
+    "episode_count": 36,
+    "samples": 104915,
+    "accuracy": 0.797731496926083,
+    "macro_f1": 0.7595877213793368,
+    "ml": {
+      "detected": 12,
+      "fires": 12,
+      "mean_delay_s": 654.15,
+      "false_positive_episodes": 0,
+      "negative_episodes": 24,
+      "pre_ignition": 0
+    },
+    "rules": {
+      "detected": 12,
+      "fires": 12,
+      "mean_delay_s": 2012.53,
+      "false_positive_episodes": 2,
+      "negative_episodes": 24,
+      "pre_ignition": 0
+    }
+  },
+  "thresholds": {
+    "max_macro_f1_drop": 0.01,
+    "max_accuracy_drop": 0.01,
+    "max_delay_increase_s": 10,
+    "no_drop_in_fire_episode_recall": true,
+    "no_increase_in_false_positive_episodes": true
+  },
+  "approved": false,
+  "reasons": [
+    "accuracy_regression",
+    "fire_detection_delay_regression"
+  ],
+  "scope": "Only the synthetic validation family. Does not establish performance on independent physical wildfire sensor datasets.",
+  "promoted": false
+}

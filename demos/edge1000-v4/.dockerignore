@@ -1,0 +1,11 @@
+.git
+__pycache__
+**/__pycache__
+*.pyc
+state
+resultados
+docs
+tests
+candidate
+referencia
+.ruff_cache

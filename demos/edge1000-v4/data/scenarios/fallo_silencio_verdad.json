@@ -1,0 +1,26 @@
+{
+ "escenario": "fallo_silencio",
+ "descripcion": "El nodo 500 deja de enviar de 22:00 a 22:03 y vuelve a enviar (el contador seq no avanza durante el silencio).",
+ "seed": 42,
+ "periodo_s": 10,
+ "inicio_ventana": 77400,
+ "fin_ventana": 81000,
+ "nota_tiempo": "segundos desde las 00:00 del dia simulado; ts = 1784073600000 + segundos*1000 (ms)",
+ "mensajes": 3222,
+ "nodos": [
+  467,
+  468,
+  469,
+  499,
+  500,
+  501,
+  531,
+  532,
+  533
+ ],
+ "t0_s": 79200,
+ "nodo_evento": 500,
+ "alarma_esperada": false,
+ "estado_esperado_nodo": "FALLO",
+ "criterio": "El nodo 500 pasa a FALLO por silencio (propuesta: 45 s con keep-alive de 30 s). No es alarma de fuego."
+}

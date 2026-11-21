@@ -1,0 +1,26 @@
+{
+ "escenario": "sos_boton",
+ "descripcion": "Boton SOS pulsado en el nodo 900 a las 20:00: kind=emergency cada 5 s durante 60 s. Valores ambientales normales.",
+ "seed": 42,
+ "periodo_s": 60,
+ "inicio_ventana": 70200,
+ "fin_ventana": 73800,
+ "nota_tiempo": "segundos desde las 00:00 del dia simulado; ts = 1784073600000 + segundos*1000 (ms)",
+ "mensajes": 551,
+ "nodos": [
+  867,
+  868,
+  869,
+  899,
+  900,
+  901,
+  931,
+  932,
+  933
+ ],
+ "t0_s": 72000,
+ "nodo_evento": 900,
+ "alarma_esperada": true,
+ "tipo_alarma": "sos_alert",
+ "criterio": "Alarma sos_alert inmediata (menos de 5 s) y sin esperar confirmacion de vecinos."
+}

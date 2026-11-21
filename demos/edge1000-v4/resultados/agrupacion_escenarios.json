@@ -1,0 +1,23 @@
+[
+  {
+    "scenario": "fuego_lento",
+    "readings": 41160,
+    "suspected_fire_events": 218,
+    "grouped_incidents": 1,
+    "incident_event_counts": [
+      218
+    ],
+    "note": "Agrupacion hipotetica espacial y temporal, no verdad de campo"
+  },
+  {
+    "scenario": "fuego_rapido",
+    "readings": 40740,
+    "suspected_fire_events": 41,
+    "grouped_incidents": 2,
+    "incident_event_counts": [
+      40,
+      1
+    ],
+    "note": "Agrupacion hipotetica espacial y temporal, no verdad de campo"
+  }
+]

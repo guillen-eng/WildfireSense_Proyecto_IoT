@@ -1,0 +1,34 @@
+{
+  "nodos": 1000,
+  "lecturas": 47981,
+  "segundos_en_este_equipo": 2.225,
+  "modelo": "rf-a288fc78989a",
+  "eventos": {
+    "sos_alert": 1,
+    "environmental_risk": 9,
+    "suspected_fire": 9,
+    "node_health": 1
+  },
+  "primero": {
+    "sos_alert": {
+      "segundo_de_demo": 16.49,
+      "sensor": "node_0496",
+      "vecino": null
+    },
+    "environmental_risk": {
+      "segundo_de_demo": 186.49,
+      "sensor": "node_0496",
+      "vecino": null
+    },
+    "suspected_fire": {
+      "segundo_de_demo": 242.56,
+      "sensor": "node_0497",
+      "vecino": "node_0496"
+    },
+    "node_health": {
+      "segundo_de_demo": 335.07,
+      "sensor": "node_0496",
+      "vecino": null
+    }
+  }
+}

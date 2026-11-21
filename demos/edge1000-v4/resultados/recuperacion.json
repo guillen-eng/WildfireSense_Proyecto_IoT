@@ -1,0 +1,42 @@
+{
+  "online_summary": {
+    "n": 28,
+    "mean_pm25": 8.154,
+    "max_pm25": 15.4,
+    "computed_by": "cloud",
+    "generated_at": "2026-11-20T14:52:06.181+00:00",
+    "event_id": "a96edd2d2bc946f2a43ad0a653c63811"
+  },
+  "during_outage_backlog": 34,
+  "sos_sender_to_rx_ms": 0.157,
+  "sos_edge_decision_ms": 0.078,
+  "local_alarms": 19,
+  "synchronized_unique_alerts": 19,
+  "pending_after_recovery": 0,
+  "windows_by_compute_location": {
+    "cloud": 13,
+    "edge": 16
+  },
+  "cloud_http_after_restart": {
+    "last_summary": {
+      "n": 270,
+      "mean_pm25": 8.595,
+      "max_pm25": 50.5,
+      "computed_by": "edge",
+      "generated_at": "2026-11-20T14:52:56.280+00:00",
+      "event_id": "3a1ba4da1eb940f8821f97e584776ff6"
+    },
+    "total_alerts": 19,
+    "environmental_alerts": 18,
+    "sos_alerts": 1,
+    "last_received_at": "2026-11-20T14:52:57.542826+00:00",
+    "edge": {
+      "nodes": 1000,
+      "readings": 53981,
+      "model": "rf-a288fc78989a",
+      "processing_p95_ms": 0.182,
+      "generated_at": "2026-11-20T14:52:57.527+00:00"
+    },
+    "mqtt_connected": true
+  }
+}

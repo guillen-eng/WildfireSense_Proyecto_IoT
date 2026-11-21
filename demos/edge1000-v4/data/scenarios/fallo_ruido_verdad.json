@@ -1,0 +1,26 @@
+{
+ "escenario": "fallo_ruido",
+ "descripcion": "Ruido excesivo en el nodo 300 de 16:30 a 17:00: desviacion tipica 4 veces mayor en PM y temperatura, sin cambio de nivel (los valores negativos se recortan a 0).",
+ "seed": 42,
+ "periodo_s": 10,
+ "inicio_ventana": 57600,
+ "fin_ventana": 63000,
+ "nota_tiempo": "segundos desde las 00:00 del dia simulado; ts = 1784073600000 + segundos*1000 (ms)",
+ "mensajes": 4860,
+ "nodos": [
+  267,
+  268,
+  269,
+  299,
+  300,
+  301,
+  331,
+  332,
+  333
+ ],
+ "t0_s": 59400,
+ "nodo_evento": 300,
+ "alarma_esperada": false,
+ "estado_esperado_nodo": "SOSPECHOSO",
+ "criterio": "El nodo 300 pasa a SOSPECHOSO por varianza anomala. No es alarma de fuego. Nota: los valores negativos se recortan a 0."
+}

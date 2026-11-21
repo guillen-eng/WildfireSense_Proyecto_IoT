@@ -1,0 +1,26 @@
+{
+  "input_messages": 40740,
+  "dropped": 2008,
+  "duplicated": 742,
+  "delivered_messages": 39474,
+  "accepted_readings": 12259,
+  "rejected_order_or_duplicate": 27215,
+  "sequence_gaps": 28373,
+  "node_states": 49,
+  "decisions": {
+    "node_health": 2313,
+    "environmental_risk": 207,
+    "suspected_fire": 198
+  },
+  "first_suspected_fire_timestamp": 1784124314.055,
+  "first_sos_timestamp": null,
+  "settings": {
+    "loss": 0.05,
+    "duplicates": 0.02,
+    "jitter_s": 90.0,
+    "seed": 42
+  },
+  "suspected_fire_delay_s": 314.06,
+  "source_file": "data/scenarios/fuego_rapido.jsonl",
+  "scope": "Impairment offline de aplicacion; no prueba RF ni MQTT real"
+}

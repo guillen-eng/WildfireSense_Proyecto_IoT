@@ -1,0 +1,28 @@
+{
+  "source": "Resultados aportados por el usuario, Docker Desktop Windows, 20/11/2026",
+  "environment": "LAN virtual Docker, nube local SQLite; NO radio o incendio real",
+  "mqtt_1000_clients_limited": {
+    "clients": 1000,
+    "publishing_clients": 1000,
+    "messages_sent": 6000,
+    "messages_received": 6000,
+    "PDR": 1.0,
+    "nominal_messages_per_second": 100,
+    "edge_cpu_limit": 0.5,
+    "edge_memory_limit_MiB": 512,
+    "edge_processing_p95_ms": 0.900,
+    "sender_to_decision_p95_ms": 8.876,
+    "edge_oom_killed": false
+  },
+  "edge_cloud_disconnected": {
+    "readings_received": 47981,
+    "suspected_fire_events": 9,
+    "sos_events": 1,
+    "backlog_during_disconnect": 32,
+    "backlog_after_recovery": 0,
+    "cloud_alerts_before": 57,
+    "cloud_alerts_after": 76,
+    "new_cloud_alerts": 19
+  },
+  "limits": "Los datos de MQTT a 800 msg/s bajo limites de CPU/memoria deben verificarse por separado. No confundir eventos con incendios ni las 32 entradas de cola con 32 alarmas."
+}

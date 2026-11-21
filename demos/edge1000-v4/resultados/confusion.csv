@@ -1,0 +1,7 @@
+real,direct_sun,dust,fast_fire,fog,normal,slow_fire
+direct_sun,30595,4,205,298,48394,1504
+dust,13,4307,18,5,131,26
+fast_fire,308,3,8203,6,1497,1762
+fog,122,1,6,79532,1315,24
+normal,23264,366,1785,1630,238314,4773
+slow_fire,3394,130,3237,249,13571,56947

@@ -1,0 +1,123 @@
+[
+  {
+    "input_messages": 40740,
+    "dropped": 0,
+    "duplicated": 0,
+    "delivered_messages": 40740,
+    "accepted_readings": 40740,
+    "rejected_order_or_duplicate": 0,
+    "sequence_gaps": 0,
+    "node_states": 49,
+    "decisions": {
+      "environmental_risk": 41,
+      "suspected_fire": 41,
+      "node_health": 30
+    },
+    "first_suspected_fire_timestamp": 1784124216.465,
+    "first_sos_timestamp": null,
+    "settings": {
+      "loss": 0,
+      "duplicates": 0,
+      "jitter_s": 0,
+      "seed": 42
+    },
+    "suspected_fire_delay_s": 216.46,
+    "source": "fuego_rapido"
+  },
+  {
+    "input_messages": 40740,
+    "dropped": 2008,
+    "duplicated": 742,
+    "delivered_messages": 39474,
+    "accepted_readings": 38732,
+    "rejected_order_or_duplicate": 742,
+    "sequence_gaps": 2003,
+    "node_states": 49,
+    "decisions": {
+      "environmental_risk": 42,
+      "suspected_fire": 42,
+      "node_health": 30
+    },
+    "first_suspected_fire_timestamp": 1784124221.465,
+    "first_sos_timestamp": null,
+    "settings": {
+      "loss": 0.05,
+      "duplicates": 0.02,
+      "jitter_s": 2,
+      "seed": 42
+    },
+    "suspected_fire_delay_s": 221.46,
+    "source": "fuego_rapido"
+  },
+  {
+    "input_messages": 40740,
+    "dropped": 2008,
+    "duplicated": 742,
+    "delivered_messages": 39474,
+    "accepted_readings": 34055,
+    "rejected_order_or_duplicate": 5419,
+    "sequence_gaps": 6675,
+    "node_states": 49,
+    "decisions": {
+      "environmental_risk": 39,
+      "suspected_fire": 39,
+      "node_health": 30
+    },
+    "first_suspected_fire_timestamp": 1784124233.815,
+    "first_sos_timestamp": null,
+    "settings": {
+      "loss": 0.05,
+      "duplicates": 0.02,
+      "jitter_s": 10,
+      "seed": 42
+    },
+    "suspected_fire_delay_s": 233.82,
+    "source": "fuego_rapido"
+  },
+  {
+    "input_messages": 40740,
+    "dropped": 2008,
+    "duplicated": 742,
+    "delivered_messages": 39474,
+    "accepted_readings": 12259,
+    "rejected_order_or_duplicate": 27215,
+    "sequence_gaps": 28373,
+    "node_states": 49,
+    "decisions": {
+      "node_health": 2313,
+      "environmental_risk": 207,
+      "suspected_fire": 198
+    },
+    "first_suspected_fire_timestamp": 1784124314.055,
+    "first_sos_timestamp": null,
+    "settings": {
+      "loss": 0.05,
+      "duplicates": 0.02,
+      "jitter_s": 90,
+      "seed": 42
+    },
+    "suspected_fire_delay_s": 314.06,
+    "source": "fuego_rapido"
+  },
+  {
+    "input_messages": 9000,
+    "dropped": 412,
+    "duplicated": 167,
+    "delivered_messages": 8755,
+    "accepted_readings": 8588,
+    "rejected_order_or_duplicate": 167,
+    "sequence_gaps": 408,
+    "node_states": 25,
+    "decisions": {},
+    "first_suspected_fire_timestamp": null,
+    "first_sos_timestamp": null,
+    "settings": {
+      "loss": 0.05,
+      "duplicates": 0.02,
+      "jitter_s": 10,
+      "seed": 42
+    },
+    "suspected_fire_delay_s": null,
+    "source": "polvo_tractor"
+  }
+]

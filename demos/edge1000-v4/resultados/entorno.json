@@ -1,0 +1,12 @@
+{
+  "host": "Linux x86_64, AMD EPYC 9V74",
+  "python": "3.12.14",
+  "mosquitto": "2.0.21",
+  "paho": "2.1.0",
+  "compose_config_checked": "2.26.1",
+  "docker_daemon_used": false,
+  "clock": "One host, local TCP loopback",
+  "edge_model_sha256": "31fc35607f7dd8b147b6cb0bdcbd86e24484c8b8046f015c71fba614757c4a7b",
+  "independent_training_rebuilt_identical": true,
+  "tests_passed": 22
+}

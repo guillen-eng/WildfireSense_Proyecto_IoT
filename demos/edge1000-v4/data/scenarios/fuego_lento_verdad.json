@@ -1,0 +1,416 @@
+{
+ "escenario": "fuego_lento",
+ "descripcion": "Fuego lento con origen en el nodo 496 (alias N3). Viento 1 m/s hacia el este. Avance 1 m/min. PM2.5 pico 150, PM2.5/PM10 del humo 0,6.",
+ "seed": 42,
+ "periodo_s": 30,
+ "inicio_ventana": 43200,
+ "fin_ventana": 68400,
+ "nota_tiempo": "segundos desde las 00:00 del dia simulado; ts = 1784073600000 + segundos*1000 (ms)",
+ "mensajes": 41160,
+ "nodos": [
+  397,
+  398,
+  399,
+  400,
+  401,
+  402,
+  403,
+  429,
+  430,
+  431,
+  432,
+  433,
+  434,
+  435,
+  461,
+  462,
+  463,
+  464,
+  465,
+  466,
+  467,
+  493,
+  494,
+  495,
+  496,
+  497,
+  498,
+  499,
+  525,
+  526,
+  527,
+  528,
+  529,
+  530,
+  531,
+  557,
+  558,
+  559,
+  560,
+  561,
+  562,
+  563,
+  589,
+  590,
+  591,
+  592,
+  593,
+  594,
+  595
+ ],
+ "t0_s": 50400,
+ "alias": {
+  "N3": 496,
+  "N4": 497,
+  "N5": 528,
+  "N6": 529
+ },
+ "nodos_detalle": {
+  "397": {
+   "distancia_m": 534.6,
+   "llega_fuego_s": null,
+   "humo_empieza_s": 52182.0,
+   "pico_humo_ug_m3": 0.6,
+   "PM2.5_supera_35_5_s": null
+  },
+  "398": {
+   "distancia_m": 454.3,
+   "llega_fuego_s": null,
+   "humo_empieza_s": 51914.0,
+   "pico_humo_ug_m3": 1.6,
+   "PM2.5_supera_35_5_s": null
+  },
+  "399": {
+   "distancia_m": 398.4,
+   "llega_fuego_s": null,
+   "humo_empieza_s": 51728.0,
+   "pico_humo_ug_m3": 3.6,
+   "PM2.5_supera_35_5_s": null
+  },
+  "400": {
+   "distancia_m": 378.0,
+   "llega_fuego_s": null,
+   "humo_empieza_s": 51660.0,
+   "pico_humo_ug_m3": 6.0,
+   "PM2.5_supera_35_5_s": null
+  },
+  "401": {
+   "distancia_m": 398.4,
+   "llega_fuego_s": null,
+   "humo_empieza_s": 51660.0,
+   "pico_humo_ug_m3": 6.9,
+   "PM2.5_supera_35_5_s": null
+  },
+  "402": {
+   "distancia_m": 454.3,
+   "llega_fuego_s": null,
+   "humo_empieza_s": 51219.0,
+   "pico_humo_ug_m3": 5.6,
+   "PM2.5_supera_35_5_s": null
+  },
+  "403": {
+   "distancia_m": 534.6,
+   "llega_fuego_s": null,
+   "humo_empieza_s": 51156.0,
+   "pico_humo_ug_m3": 3.6,
+   "PM2.5_supera_35_5_s": null
+  },
+  "429": {
+   "distancia_m": 454.3,
+   "llega_fuego_s": null,
+   "humo_empieza_s": 51914.0,
+   "pico_humo_ug_m3": 0.7,
+   "PM2.5_supera_35_5_s": null
+  },
+  "430": {
+   "distancia_m": 356.4,
+   "llega_fuego_s": null,
+   "humo_empieza_s": 51588.0,
+   "pico_humo_ug_m3": 2.0,
+   "PM2.5_supera_35_5_s": null
+  },
+  "431": {
+   "distancia_m": 281.7,
+   "llega_fuego_s": null,
+   "humo_empieza_s": 51339.0,
+   "pico_humo_ug_m3": 6.3,
+   "PM2.5_supera_35_5_s": null
+  },
+  "432": {
+   "distancia_m": 252.0,
+   "llega_fuego_s": null,
+   "humo_empieza_s": 51240.0,
+   "pico_humo_ug_m3": 14.0,
+   "PM2.5_supera_35_5_s": null
+  },
+  "433": {
+   "distancia_m": 281.7,
+   "llega_fuego_s": null,
+   "humo_empieza_s": 51030.0,
+   "pico_humo_ug_m3": 16.6,
+   "PM2.5_supera_35_5_s": null
+  },
+  "434": {
+   "distancia_m": 356.4,
+   "llega_fuego_s": null,
+   "humo_empieza_s": 50904.0,
+   "pico_humo_ug_m3": 11.9,
+   "PM2.5_supera_35_5_s": null
+  },
+  "435": {
+   "distancia_m": 454.3,
+   "llega_fuego_s": null,
+   "humo_empieza_s": 50946.0,
+   "pico_humo_ug_m3": 6.6,
+   "PM2.5_supera_35_5_s": null
+  },
+  "461": {
+   "distancia_m": 398.4,
+   "llega_fuego_s": null,
+   "humo_empieza_s": 51728.0,
+   "pico_humo_ug_m3": 1.1,
+   "PM2.5_supera_35_5_s": null
+  },
+  "462": {
+   "distancia_m": 281.7,
+   "llega_fuego_s": null,
+   "humo_empieza_s": 51339.0,
+   "pico_humo_ug_m3": 2.3,
+   "PM2.5_supera_35_5_s": null
+  },
+  "463": {
+   "distancia_m": 178.2,
+   "llega_fuego_s": null,
+   "humo_empieza_s": 50994.0,
+   "pico_humo_ug_m3": 6.7,
+   "PM2.5_supera_35_5_s": null
+  },
+  "464": {
+   "distancia_m": 126.0,
+   "llega_fuego_s": 65520.0,
+   "humo_empieza_s": 50820.0,
+   "pico_humo_ug_m3": 32.4,
+   "PM2.5_supera_35_5_s": 62010
+  },
+  "465": {
+   "distancia_m": 178.2,
+   "llega_fuego_s": 62926.0,
+   "humo_empieza_s": 50652.0,
+   "pico_humo_ug_m3": 39.0,
+   "PM2.5_supera_35_5_s": 57860
+  },
+  "466": {
+   "distancia_m": 281.7,
+   "llega_fuego_s": 68247.0,
+   "humo_empieza_s": 50715.0,
+   "pico_humo_ug_m3": 21.7,
+   "PM2.5_supera_35_5_s": 68280
+  },
+  "467": {
+   "distancia_m": 398.4,
+   "llega_fuego_s": null,
+   "humo_empieza_s": 50820.0,
+   "pico_humo_ug_m3": 10.3,
+   "PM2.5_supera_35_5_s": null
+  },
+  "493": {
+   "distancia_m": 378.0,
+   "llega_fuego_s": null,
+   "humo_empieza_s": 51660.0,
+   "pico_humo_ug_m3": 1.2,
+   "PM2.5_supera_35_5_s": null
+  },
+  "494": {
+   "distancia_m": 252.0,
+   "llega_fuego_s": null,
+   "humo_empieza_s": 51240.0,
+   "pico_humo_ug_m3": 2.8,
+   "PM2.5_supera_35_5_s": null
+  },
+  "495": {
+   "distancia_m": 126.0,
+   "llega_fuego_s": null,
+   "humo_empieza_s": 50820.0,
+   "pico_humo_ug_m3": 6.5,
+   "PM2.5_supera_35_5_s": null
+  },
+  "496": {
+   "distancia_m": 0.0,
+   "llega_fuego_s": 50400.0,
+   "humo_empieza_s": 50400,
+   "pico_humo_ug_m3": 150.0,
+   "PM2.5_supera_35_5_s": 51600
+  },
+  "497": {
+   "distancia_m": 126.0,
+   "llega_fuego_s": 57960.0,
+   "humo_empieza_s": 50526.0,
+   "pico_humo_ug_m3": 64.8,
+   "PM2.5_supera_35_5_s": 53800
+  },
+  "498": {
+   "distancia_m": 252.0,
+   "llega_fuego_s": 65520.0,
+   "humo_empieza_s": 50652.0,
+   "pico_humo_ug_m3": 28.0,
+   "PM2.5_supera_35_5_s": 65530
+  },
+  "499": {
+   "distancia_m": 378.0,
+   "llega_fuego_s": null,
+   "humo_empieza_s": 50778.0,
+   "pico_humo_ug_m3": 12.1,
+   "PM2.5_supera_35_5_s": null
+  },
+  "525": {
+   "distancia_m": 398.4,
+   "llega_fuego_s": null,
+   "humo_empieza_s": 51728.0,
+   "pico_humo_ug_m3": 1.1,
+   "PM2.5_supera_35_5_s": null
+  },
+  "526": {
+   "distancia_m": 281.7,
+   "llega_fuego_s": null,
+   "humo_empieza_s": 51339.0,
+   "pico_humo_ug_m3": 2.3,
+   "PM2.5_supera_35_5_s": null
+  },
+  "527": {
+   "distancia_m": 178.2,
+   "llega_fuego_s": null,
+   "humo_empieza_s": 50994.0,
+   "pico_humo_ug_m3": 6.7,
+   "PM2.5_supera_35_5_s": null
+  },
+  "528": {
+   "distancia_m": 126.0,
+   "llega_fuego_s": 65520.0,
+   "humo_empieza_s": 50820.0,
+   "pico_humo_ug_m3": 32.4,
+   "PM2.5_supera_35_5_s": 62010
+  },
+  "529": {
+   "distancia_m": 178.2,
+   "llega_fuego_s": 62926.0,
+   "humo_empieza_s": 50652.0,
+   "pico_humo_ug_m3": 39.0,
+   "PM2.5_supera_35_5_s": 57860
+  },
+  "530": {
+   "distancia_m": 281.7,
+   "llega_fuego_s": 68247.0,
+   "humo_empieza_s": 50715.0,
+   "pico_humo_ug_m3": 21.7,
+   "PM2.5_supera_35_5_s": 68280
+  },
+  "531": {
+   "distancia_m": 398.4,
+   "llega_fuego_s": null,
+   "humo_empieza_s": 50820.0,
+   "pico_humo_ug_m3": 10.3,
+   "PM2.5_supera_35_5_s": null
+  },
+  "557": {
+   "distancia_m": 454.3,
+   "llega_fuego_s": null,
+   "humo_empieza_s": 51914.0,
+   "pico_humo_ug_m3": 0.7,
+   "PM2.5_supera_35_5_s": null
+  },
+  "558": {
+   "distancia_m": 356.4,
+   "llega_fuego_s": null,
+   "humo_empieza_s": 51588.0,
+   "pico_humo_ug_m3": 2.0,
+   "PM2.5_supera_35_5_s": null
+  },
+  "559": {
+   "distancia_m": 281.7,
+   "llega_fuego_s": null,
+   "humo_empieza_s": 51339.0,
+   "pico_humo_ug_m3": 6.3,
+   "PM2.5_supera_35_5_s": null
+  },
+  "560": {
+   "distancia_m": 252.0,
+   "llega_fuego_s": null,
+   "humo_empieza_s": 51240.0,
+   "pico_humo_ug_m3": 14.0,
+   "PM2.5_supera_35_5_s": null
+  },
+  "561": {
+   "distancia_m": 281.7,
+   "llega_fuego_s": null,
+   "humo_empieza_s": 51030.0,
+   "pico_humo_ug_m3": 16.6,
+   "PM2.5_supera_35_5_s": null
+  },
+  "562": {
+   "distancia_m": 356.4,
+   "llega_fuego_s": null,
+   "humo_empieza_s": 50904.0,
+   "pico_humo_ug_m3": 11.9,
+   "PM2.5_supera_35_5_s": null
+  },
+  "563": {
+   "distancia_m": 454.3,
+   "llega_fuego_s": null,
+   "humo_empieza_s": 50946.0,
+   "pico_humo_ug_m3": 6.6,
+   "PM2.5_supera_35_5_s": null
+  },
+  "589": {
+   "distancia_m": 534.6,
+   "llega_fuego_s": null,
+   "humo_empieza_s": 52182.0,
+   "pico_humo_ug_m3": 0.6,
+   "PM2.5_supera_35_5_s": null
+  },
+  "590": {
+   "distancia_m": 454.3,
+   "llega_fuego_s": null,
+   "humo_empieza_s": 51914.0,
+   "pico_humo_ug_m3": 1.6,
+   "PM2.5_supera_35_5_s": null
+  },
+  "591": {
+   "distancia_m": 398.4,
+   "llega_fuego_s": null,
+   "humo_empieza_s": 51728.0,
+   "pico_humo_ug_m3": 3.6,
+   "PM2.5_supera_35_5_s": null
+  },
+  "592": {
+   "distancia_m": 378.0,
+   "llega_fuego_s": null,
+   "humo_empieza_s": 51660.0,
+   "pico_humo_ug_m3": 6.0,
+   "PM2.5_supera_35_5_s": null
+  },
+  "593": {
+   "distancia_m": 398.4,
+   "llega_fuego_s": null,
+   "humo_empieza_s": 51660.0,
+   "pico_humo_ug_m3": 6.9,
+   "PM2.5_supera_35_5_s": null
+  },
+  "594": {
+   "distancia_m": 454.3,
+   "llega_fuego_s": null,
+   "humo_empieza_s": 51219.0,
+   "pico_humo_ug_m3": 5.6,
+   "PM2.5_supera_35_5_s": null
+  },
+  "595": {
+   "distancia_m": 534.6,
+   "llega_fuego_s": null,
+   "humo_empieza_s": 51156.0,
+   "pico_humo_ug_m3": 3.6,
+   "PM2.5_supera_35_5_s": null
+  }
+ },
+ "alarma_esperada": true,
+ "nodo_primera_alarma": 496,
+ "criterio": "Debe haber alarma de fuego en N3 y confirmacion de vecinos. Retardo = primera alarma - t0_s. Ningun nodo debe alarmar antes de t0_s."
+}

@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.venv/
+state/
+candidate/*.json*
+# Test runs, container volumes, local verification
+EVIDENCIAS_*/
+prueba_*.txt
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
