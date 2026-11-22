@@ -2,7 +2,8 @@ name: Edge AI high-background corroboration development
 
 on:
   push:
-    branches: [feature/edge-ai-background-robustness]
+    branches:
+      - feature/edge-ai-background-robustness
     paths:
       - "demos/edge1000-v4/edge/**"
       - "demos/edge1000-v4/tests/test_background_corroboration.py"
