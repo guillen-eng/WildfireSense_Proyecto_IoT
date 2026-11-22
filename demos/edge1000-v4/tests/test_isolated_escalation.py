@@ -125,6 +125,7 @@ class IsolatedPolicyTests(unittest.TestCase):
             DetectionPolicy(isolated_enabled=True, isolated_min_fire_score=0.99),
             DetectionPolicy(isolated_enabled=True, isolated_min_pm25_rise=100.0),
             DetectionPolicy(isolated_enabled=True, isolated_persist_s=500.0),
+            DetectionPolicy(isolated_enabled=True, isolated_min_temperature_rise=1.0),
         ]:
             with self.subTest(cfg=cfg):
                 events = simulate_isolated(cfg)
@@ -137,6 +138,7 @@ class IsolatedPolicyTests(unittest.TestCase):
             {"isolated_min_fire_score": 0.60},
             {"isolated_min_pm25_rise": -1},
             {"isolated_min_pm25_rise": math.nan},
+            {"isolated_min_temperature_rise": -0.1},
         ]:
             with self.subTest(bad=bad), self.assertRaises(ValueError):
                 DetectionPolicy(**bad)
