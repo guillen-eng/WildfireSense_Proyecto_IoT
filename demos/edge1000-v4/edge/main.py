@@ -27,8 +27,12 @@ class Gateway:
         isolated_env = os.getenv("EDGE_ISOLATED_ESCALATION", "0")
         if isolated_env not in ("0", "1"):
             raise ValueError("EDGE_ISOLATED_ESCALATION must be 0 or 1")
+        corroboration_env = os.getenv("EDGE_CORROBORATION_TREND_GATE", "0")
+        if corroboration_env not in ("0", "1"):
+            raise ValueError("EDGE_CORROBORATION_TREND_GATE must be 0 or 1")
         self.engine = Engine(policy=DetectionPolicy(
-            isolated_enabled=isolated_env == "1"
+            isolated_enabled=isolated_env == "1",
+            corroboration_trend_enabled=corroboration_env == "1",
         ))
         self.store = Journal(os.getenv("EDGE_DB", "state/edge.sqlite"))
         self.client = mqtt.Client(
@@ -182,6 +186,9 @@ class Gateway:
             evictions=eng.evictions,
             model=eng.forest.version,
             isolated_escalation_enabled=eng.policy.isolated_enabled,
+            corroboration_trend_enabled=eng.policy.corroboration_trend_enabled,
+            corroboration_min_pm25_rise=eng.policy.corroboration_min_pm25_rise,
+            corroboration_trend_ttl_s=eng.policy.corroboration_trend_ttl_s,
             cloud_available=self.uplink(),
             cloud_rtt_ms=self.rtt,
             backlog=self.store.backlog(),
