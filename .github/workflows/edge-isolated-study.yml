@@ -1,0 +1,54 @@
+name: WildfireSense isolated-node policy B study
+
+on:
+  push:
+    branches:
+      - feature/edge-ai-evidence-freeze
+    paths:
+      - "demos/edge1000-v4/edge/logic.py"
+      - "demos/edge1000-v4/lab/isolated_policy_study.py"
+      - "demos/edge1000-v4/lab/threshold_sensitivity.py"
+      - "demos/edge1000-v4/tests/test_isolated_escalation.py"
+      - ".github/workflows/edge-isolated-study.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  isolated-study:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: demos/edge1000-v4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install vendored MQTT dependency
+        run: python -m pip install --no-index -r requirements.txt
+      - name: All unit tests (V4 + option B)
+        run: python -m unittest discover -s tests -v
+      - name: Development sensitivity study for isolated nodes (6 seeds)
+        run: python -m lab.isolated_policy_study --seeds 301 302 303 304 305 306 --out /tmp/wildfiresense-isolated-study
+      - name: Confirm baseline remains disabled and candidate reports are complete
+        run: |
+          python - <<'PY'
+          import csv, json
+          from pathlib import Path
+          folder=Path('/tmp/wildfiresense-isolated-study')
+          meta=json.loads((folder/'study.json').read_text())
+          data=list(csv.DictReader((folder/'candidates.csv').open()))
+          assert meta['model']=='rf-a288fc78989a'
+          assert meta['candidate_count']==12 and len(data)==26
+          assert all(x['isolated_detected']=='0' for x in data if x['candidate']=='off_baseline')
+          print('Manual gate required. No candidate automatically deployed.')
+          PY
+      - name: Attach isolated policy options and episode evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: isolated-policy-b-${{ github.sha }}
+          path: /tmp/wildfiresense-isolated-study/
+          retention-days: 30
