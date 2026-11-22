@@ -56,12 +56,12 @@ def percentile(values, q):
     return round(ordered[low] * (1 - weight) + ordered[high] * weight, 2)
 
 
-def evaluate_policy(forest, policy, seeds):
+def evaluate_policy(forest, policy, seeds, scene_source=make_scene):
     """Score alarm events per independent episode, not per individual sample."""
     episodes = []
     for seed in seeds:
         for scene in SCENES:
-            stream, _nodes, t0 = make_scene(seed, scene)
+            stream, _nodes, t0 = scene_source(seed, scene)
             engine = Engine(forest=forest, policy=policy)
             first_fire = first_advisory = None
             pre_onset_high = high_count = advisory_count = 0
