@@ -27,12 +27,16 @@ class Gateway:
         isolated_env = os.getenv("EDGE_ISOLATED_ESCALATION", "0")
         if isolated_env not in ("0", "1"):
             raise ValueError("EDGE_ISOLATED_ESCALATION must be 0 or 1")
-        corroboration_env = os.getenv("EDGE_CORROBORATION_TREND_GATE", "0")
-        if corroboration_env not in ("0", "1"):
-            raise ValueError("EDGE_CORROBORATION_TREND_GATE must be 0 or 1")
+        # Do not allow unapproved research gates into the MQTT process.
+        # Both PM-only and paired PM+temperature studies failed the pre-set
+        # sensitivity / false-alarm criteria; offline Engine injection remains
+        # available for reproducing their negative results.
+        if os.getenv("EDGE_CORROBORATION_TREND_GATE", "0") != "0":
+            raise ValueError(
+                "Experimental corroboration filter is NOT approved for deployment"
+            )
         self.engine = Engine(policy=DetectionPolicy(
             isolated_enabled=isolated_env == "1",
-            corroboration_trend_enabled=corroboration_env == "1",
         ))
         self.store = Journal(os.getenv("EDGE_DB", "state/edge.sqlite"))
         self.client = mqtt.Client(
