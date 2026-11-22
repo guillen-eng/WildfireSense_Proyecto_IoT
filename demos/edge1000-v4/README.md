@@ -12,7 +12,7 @@ El Random Forest oficial sigue siendo **`rf-a288fc78989a`**; clasificación loca
 # Modo B2 opcional para evaluación académica: nunca aplicarlo a incendios reales.
 docker compose -f docker-compose.yml -f docker-compose.edge-limits.yml -f docker-compose.edge-b2.yml up -d --build mosquitto edge
 docker compose -f docker-compose.yml -f docker-compose.edge-limits.yml -f docker-compose.edge-b2.yml exec mosquitto mosquitto_sub -h 127.0.0.1 -t wildfiresense/edge/status -C 1
-# Comprobar aislated_escalation_enabled: true en el JSON de estado.
+# Comprobar isolated_escalation_enabled: true en el JSON de estado.
 ```
 
 B2 genera `unconfirmed_fire_risk` (**high pero explícitamente NO corroborada**) exclusivamente si faltan vecinos sanos recientes, aumenta PM2.5 rápido frente al fondo, la tendencia de temperatura es positiva y la evidencia persiste. **No se debe contar como `suspected_fire`.** La Cloud V4 la puede almacenar como `environmental_alert`, pero su panel actual todavía no distingue visualmente esa decisión; coordinar esa etiqueta con el compañero de Cloud.
