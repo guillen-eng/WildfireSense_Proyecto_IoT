@@ -35,7 +35,7 @@ def simulate_isolated(policy, *, neighbours=False, rising=True, steps=45):
         if neighbours:
             _pred, produced = engine.evaluate(
                 "study", "node_0002", "boot", i + 1, t,
-                (8.0, 20.0, 23.0, 55.0), period=10
+                (8.0 + 0.02*i, 20.0 + 0.03*i, 23.0 + 0.01*i, 55.0), period=10
             )
             result.extend(produced)
     return result
