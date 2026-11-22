@@ -27,7 +27,7 @@ def simulate_isolated(policy, *, neighbours=False, rising=True, steps=45):
     for i in range(steps):
         t = i * 10.0
         pm = 8.0 + (4.0 * i if rising else 0.0)
-        x = (pm, max(pm, pm * 1.6), 23.0 + i * 0.03, 55.0)
+        x = (pm, max(pm, pm * 1.6), 23.0 + i * 0.6, 55.0)
         _pred, produced = engine.evaluate(
             "study", "node_0001", "boot", i + 1, t, x, period=10
         )
@@ -81,7 +81,7 @@ class IsolatedPolicyTests(unittest.TestCase):
             pm = 8.0 + 4.0*i
             _, produced = engine.evaluate(
                 "study", "node_0001", "boot", i+1, t,
-                (pm, pm*1.6, 23.0 + i*0.03, 55.0), period=10)
+                (pm, pm*1.6, 23.0 + i*0.6, 55.0), period=10)
             found.extend(produced)
         self.assertEqual(
             sum(e["decision"] == "unconfirmed_fire_risk" for e in found), 1
@@ -97,14 +97,14 @@ class IsolatedPolicyTests(unittest.TestCase):
             pm = 8.0 + 4.0*i
             _, generated = engine.evaluate(
                 "study", "node_0001", "boot", seq["node_0001"], t,
-                (pm, pm*1.6, 23.0 + i*0.03, 55.0), period=10)
+                (pm, pm*1.6, 23.0 + i*0.6, 55.0), period=10)
             found.extend(generated)
             if i >= 45:
                 seq["node_0002"] += 1
                 pm2 = 30.0 + 4.0*(i - 45)
                 _, generated = engine.evaluate(
                     "study", "node_0002", "boot", seq["node_0002"], t,
-                    (pm2, pm2*1.6, 23.0 + (i-45)*0.03, 55.0), period=10)
+                    (pm2, pm2*1.6, 23.0 + (i-45)*0.6, 55.0), period=10)
                 found.extend(generated)
         unconfirmed = [e for e in found
                        if e["decision"] == "unconfirmed_fire_risk"]
@@ -125,7 +125,7 @@ class IsolatedPolicyTests(unittest.TestCase):
             DetectionPolicy(isolated_enabled=True, isolated_min_fire_score=0.99),
             DetectionPolicy(isolated_enabled=True, isolated_min_pm25_rise=100.0),
             DetectionPolicy(isolated_enabled=True, isolated_persist_s=500.0),
-            DetectionPolicy(isolated_enabled=True, isolated_min_temperature_rise=1.0),
+            DetectionPolicy(isolated_enabled=True, isolated_min_temperature_rise=100.0),
         ]:
             with self.subTest(cfg=cfg):
                 events = simulate_isolated(cfg)
