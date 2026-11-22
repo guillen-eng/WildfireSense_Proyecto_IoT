@@ -48,6 +48,26 @@ jobs:
             k:x[k] for k in ('clients','sent','received','PDR','offered_msg_s','stats_after')
           }, indent=2))
           PY
+      - name: Prove one-node B2 high UNCONFIRMED alarm and independent critical SOS via MQTT
+        run: |
+          docker compose -p wf-edge-ci -f docker-compose.yml -f docker-compose.edge-limits.yml -f docker-compose.edge-b2.yml run --rm --no-deps \\
+            -v "$PWD/resultados:/app/resultados" \\
+            simulator python -m lab.b2_mqtt_probe --host mosquitto \\
+            --out /app/resultados/ci_b2_mqtt_probe.json
+      - name: Check B2 message contract and no invented corroboration
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('resultados/ci_b2_mqtt_probe.json').read_text())
+          assert p['model']=='rf-a288fc78989a'
+          events={e['decision']:e for e in p['events']}
+          assert events['unconfirmed_fire_risk']['confirmation']=='unconfirmed'
+          assert events['unconfirmed_fire_risk']['priority']=='high'
+          assert events['sos_alert']['priority']=='critical'
+          assert 'suspected_fire' not in events
+          print('B2 isolated MQTT and SOS verified with Cloud absent.')
+          PY
       - name: Display edge logs and resource limits
         if: always()
         run: |
@@ -58,7 +78,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: edge-mqtt-1000-${{ github.sha }}
-          path: demos/edge1000-v4/resultados/ci_mqtt_1000.json
+          path: |
+            demos/edge1000-v4/resultados/ci_mqtt_1000.json
+            demos/edge1000-v4/resultados/ci_b2_mqtt_probe.json
           if-no-files-found: warn
           retention-days: 30
       - name: Stop only these CI containers without deleting persistent volumes
