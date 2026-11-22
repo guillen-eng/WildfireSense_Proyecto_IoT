@@ -42,6 +42,7 @@ class DetectionPolicy:
     isolated_min_temperature_rise: float = 0.5  # B2: pre-registered synthetic candidate
     corroboration_trend_enabled: bool = False  # off: exact V4 behaviour
     corroboration_min_pm25_rise: float = 4.0
+    corroboration_min_temp_rise: float = 0.0  # 0 disables paired thermal gate
     corroboration_trend_ttl_s: float = 300.0
 
     def __post_init__(self):
@@ -57,6 +58,7 @@ class DetectionPolicy:
             (self.isolated_min_pm25_rise, 0, float("inf")),
             (self.isolated_min_temperature_rise, 0, float("inf")),
             (self.corroboration_min_pm25_rise, 0, float("inf")),
+            (self.corroboration_min_temp_rise, 0, float("inf")),
             (self.corroboration_trend_ttl_s, 0, float("inf")),
         )
         if (type(self.isolated_enabled) is not bool
@@ -144,6 +146,7 @@ class Node:
     since: float | None = None
     evidence: float = -math.inf
     pm_rise_at: float = -math.inf  # most recent causal ML rise above local baseline
+    temp_rise_at: float = -math.inf  # most recent positive thermal trend
     risk: bool = False
     alarm: bool = False
     unconfirmed_alarm: bool = False
@@ -200,7 +203,7 @@ class Engine:
         for (rid, n), s in self.nodes.items():
             if rid == run and s.health != "FALLO" and t - s.t > max(45, 2.5 * s.period):
                 s.health = "FALLO"
-                s.evidence = s.pm_rise_at = -math.inf
+                s.evidence = s.pm_rise_at = s.temp_rise_at = -math.inf
                 s.risk = s.alarm = s.unconfirmed_alarm = False
                 s.since = s.clear_since = None
                 events.append(
@@ -297,7 +300,7 @@ class Engine:
                 s.last_values = None
                 s.since = s.clear_since = None
                 s.risk = s.alarm = s.unconfirmed_alarm = False
-                s.evidence = s.pm_rise_at = -math.inf
+                s.evidence = s.pm_rise_at = s.temp_rise_at = -math.inf
         if period is not None:
             s.period = period
         s.seq, s.t, s.clock = seq, t, clock
@@ -349,9 +352,11 @@ class Engine:
             # and only accompanies the ORIGINAL ML fire evidence. An opt-in
             # corroboration filter may require two independent node trends.
             if (self.policy.corroboration_trend_enabled
-                    and self.mode == "ml" and s.health == "OK"
-                    and x[3] >= self.policy.corroboration_min_pm25_rise):
-                s.pm_rise_at = t
+                    and self.mode == "ml" and s.health == "OK"):
+                if x[3] >= self.policy.corroboration_min_pm25_rise:
+                    s.pm_rise_at = t
+                if x[4] >= self.policy.corroboration_min_temp_rise:
+                    s.temp_rise_at = t
             s.clear_since = None
             if s.since is None:
                 s.since = t
@@ -389,7 +394,12 @@ class Engine:
                                     and 0 <= t - s.pm_rise_at
                                     <= self.policy.corroboration_trend_ttl_s
                                     and 0 <= t - o.pm_rise_at
-                                    <= self.policy.corroboration_trend_ttl_s)
+                                    <= self.policy.corroboration_trend_ttl_s
+                                    and (self.policy.corroboration_min_temp_rise == 0
+                                         or (0 <= t - s.temp_rise_at
+                                             <= self.policy.corroboration_trend_ttl_s)
+                                         or (0 <= t - o.temp_rise_at
+                                             <= self.policy.corroboration_trend_ttl_s)))
                             )
                         ):
                             events.append(
@@ -442,6 +452,6 @@ class Engine:
                 s.clear_since = t
             if t - s.clear_since >= self.policy.clear_s:
                 s.alarm = s.risk = s.unconfirmed_alarm = False
-                s.evidence = s.pm_rise_at = -math.inf
+                s.evidence = s.pm_rise_at = s.temp_rise_at = -math.inf
         self.accepted += 1
         return (cls, score), events
