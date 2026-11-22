@@ -25,11 +25,11 @@ jobs:
       - uses: actions/checkout@v4
       - name: Start Docker Mosquitto and Edge with resource limits
         run: |
-          docker compose -p wf-edge-ci -f docker-compose.yml -f docker-compose.edge-limits.yml up -d --build mosquitto edge
-          docker compose -p wf-edge-ci -f docker-compose.yml -f docker-compose.edge-limits.yml ps
+          docker compose -p wf-edge-ci -f docker-compose.yml -f docker-compose.edge-limits.yml -f docker-compose.edge-b2.yml up -d --build mosquitto edge
+          docker compose -p wf-edge-ci -f docker-compose.yml -f docker-compose.edge-limits.yml -f docker-compose.edge-b2.yml ps
       - name: Exercise MQTT with 1000 independent clients and 6000 readings
         run: |
-          docker compose -p wf-edge-ci -f docker-compose.yml -f docker-compose.edge-limits.yml run --rm --no-deps \
+          docker compose -p wf-edge-ci -f docker-compose.yml -f docker-compose.edge-limits.yml -f docker-compose.edge-b2.yml run --rm --no-deps \
             -v "$PWD/resultados:/app/resultados" \
             simulator python -m lab.mqtt_run --clients 1000 --nodes 1000 \
             --cycles 6 --period 10 --speed 1 --scene normal \
@@ -43,6 +43,7 @@ jobs:
           assert x['clients']==1000 and x['publishing_clients']==1000
           assert x['distinct_nodes_sent']==1000
           assert x['sent']==6000 and x['received']==6000 and x['PDR']==1.0
+          assert x['stats_after']['isolated_escalation_enabled'] is True
           print('MQTT E2E 1000',json.dumps({
             k:x[k] for k in ('clients','sent','received','PDR','offered_msg_s','stats_after')
           }, indent=2))
@@ -50,7 +51,7 @@ jobs:
       - name: Display edge logs and resource limits
         if: always()
         run: |
-          docker compose -p wf-edge-ci -f docker-compose.yml -f docker-compose.edge-limits.yml logs --tail=80 edge mosquitto || true
+          docker compose -p wf-edge-ci -f docker-compose.yml -f docker-compose.edge-limits.yml -f docker-compose.edge-b2.yml logs --tail=80 edge mosquitto || true
           docker inspect wf-edge-ci-edge-1 --format 'CPU NanoCPUs={{.HostConfig.NanoCpus}} Memory={{.HostConfig.Memory}} OOM={{.State.OOMKilled}}' || true
       - name: Save reproducible MQTT counters
         if: always()
@@ -62,4 +63,4 @@ jobs:
           retention-days: 30
       - name: Stop only these CI containers without deleting persistent volumes
         if: always()
-        run: docker compose -p wf-edge-ci -f docker-compose.yml -f docker-compose.edge-limits.yml down || true
+        run: docker compose -p wf-edge-ci -f docker-compose.yml -f docker-compose.edge-limits.yml -f docker-compose.edge-b2.yml down || true
