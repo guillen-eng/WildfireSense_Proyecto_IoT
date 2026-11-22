@@ -34,7 +34,8 @@ git clone --branch feature/edge-ai-evidence-freeze https://github.com/guillen-en
 cd WildfireSense_EDGE_AI\demos\edge1000-v4
 
 # Construcción de la imagen y tests; no hace falta Python instalado en Windows.
-docker compose -p wf-edge-ai run --rm --build --no-deps -v "./tests:/app/tests:ro" simulator python -m unittest discover -s /app/tests -v
+docker compose -p wf-edge-ai build simulator
+docker compose -p wf-edge-ai run --rm --no-deps -v "./tests:/app/tests:ro" simulator python -m unittest discover -s /app/tests -v
 
 # Base V4: NO se activa la política B2.
 docker compose -p wf-edge-ai -f docker-compose.yml -f docker-compose.edge-limits.yml up -d --build mosquitto edge
