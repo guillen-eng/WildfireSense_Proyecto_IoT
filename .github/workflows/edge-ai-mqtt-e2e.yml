@@ -50,9 +50,9 @@ jobs:
           PY
       - name: Prove one-node B2 high UNCONFIRMED alarm and independent critical SOS via MQTT
         run: |
-          docker compose -p wf-edge-ci -f docker-compose.yml -f docker-compose.edge-limits.yml -f docker-compose.edge-b2.yml run --rm --no-deps \\
-            -v "$PWD/resultados:/app/resultados" \\
-            simulator python -m lab.b2_mqtt_probe --host mosquitto \\
+          docker compose -p wf-edge-ci -f docker-compose.yml -f docker-compose.edge-limits.yml -f docker-compose.edge-b2.yml run --rm --no-deps \
+            -v "$PWD/resultados:/app/resultados" \
+            simulator python -m lab.b2_mqtt_probe --host mosquitto \
             --out /app/resultados/ci_b2_mqtt_probe.json
       - name: Check B2 message contract and no invented corroboration
         run: |
