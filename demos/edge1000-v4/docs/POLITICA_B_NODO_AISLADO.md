@@ -68,3 +68,30 @@ Se permite **rechazar todas las configuraciones** y mantener `EDGE_ISOLATED_ESCA
 5. *A tuneable framework for outlier detection in PM2.5 air sensor networks during wildland fire smoke events*, Atmospheric Measurement Techniques 19, 7359–7385 (2026), https://amt.copernicus.org/articles/19/7359/2026/. Describe retos de gradientes espaciales y condiciones hiperlocales que pueden diferenciar un sensor de sus vecinos.
 
 **Advertencia:** estas fuentes no demuestran que las condiciones temporales concretas de V4 detecten un incendio forestal real, ni que sumar dos criterios derivados de un mismo evento equivalga a dos sensores independientes.
+
+## 7. Segunda fase completada y candidato prefijado para prueba sellada
+
+**Fase 2, validación 301–306:** GitHub Actions https://github.com/guillen-eng/WildfireSense_Proyecto_IoT/actions/runs/45047673848 (64 tests y barrido, OK).
+Se ha evaluado una condición adicional: `temperature_fast - temperature_slow >= T`. **Incluso T=0 representa una puerta de temperatura nueva**: obliga a que la señal térmica rápida no esté descendiendo respecto al fondo lento, y no equivale a la primera fase sin puerta térmica.
+
+| Opción en desarrollo | Aislados detectados (12) | Negativos con alarma (24) | Fondo alto con alarma (24) |
+| --- | ---: | ---: | ---: |
+| B, 120 s / score 0.80 / subida PM >=4 / subida T >=0 | 12 | 0 | 12 |
+| **B, 120 s / score 0.80 / subida PM >=8 / subida T >=0** | **9** | **0** | **0** |
+| B, 120 s / score 0.80 / subida PM >=8 / subida T >=0.25 °C | 8 | 0 | 0 |
+| B, 120 s / score 0.80 / subida PM >=4 / subida T >=0.5 °C | 6 | 0 | 0 |
+| B, 180 s / score 0.80 / subida PM >=8 / subida T >=0 | 3 | 0 | 0 |
+
+**Candidato único para la evaluación sellada posterior:** `isolated_enabled=True`, `isolated_persist_s=120`, `isolated_min_fire_score=0.80`, `isolated_min_pm25_rise=8.0`, `isolated_min_temperature_rise=0.0`. Esta selección maximiza detecciones en el grupo de opciones del desarrollo que no producen falsas alarmas en los dos negativos examinados. No es una probabilidad calibrada ni una recomendación de campo.
+
+**Protocolo fijado antes de la siguiente prueba:** semillas **601–612**, nunca usadas en el entrenamiento, validación de umbrales, test anterior o estrés anterior. Se evalúa el candidato fijo contra opción desactivada en:
+1. nodo aislado, escenas sintéticas normales;
+2. nodo aislado con PM de fondo elevado;
+3. nodo aislado con mezcla de partículas gruesas;
+4. nodo aislado con humedad elevada;
+5. nodo aislado con PM2.5 inframedido un 30 %;
+6. red de cinco nodos normales, para verificar que no aparezcan alarmas no corroboradas por efecto secundario.
+
+**Gate predefinido:** exigir cero alertas de prioridad alta sin corroboración en episodios negativos y cero antes de la ignición en las condiciones aisladas normales y de alto fondo, y recuperar por lo menos un episodio real de fuego aislado después de la ignición. Los demás escenarios de estrés revelan debilidades, no se usará el resultado para retocar el candidato sobre las mismas semillas. Si se incumple el gate, conservar el modo desactivado y registrar el rechazo. Una superación limitada seguiría siendo **solo validación sintética**; para incendios reales faltan sensores calibrados y un conjunto independiente de observaciones.
+
+La elección final de *activar el candidato en la demo* requiere además prueba MQTT en Docker del equipo y conformidad de quien mantiene el sistema de avisos.
