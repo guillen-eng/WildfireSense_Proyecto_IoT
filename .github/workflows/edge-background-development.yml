@@ -30,7 +30,7 @@ jobs:
         run: python -m pip install --no-index -r requirements.txt
       - name: Run all original V4 + policy B2 + background regression tests
         run: python -m unittest discover -s tests -v
-      - name: One-factor sweep: temporal corroboration on development seeds only
+      - name: "One-factor sweep: temporal corroboration on development seeds only"
         run: python -m lab.background_gate_study --seeds 901 902 903 904 905 906 --out /tmp/wf-background-dev
       - name: Check original model and sample counts
         run: |
