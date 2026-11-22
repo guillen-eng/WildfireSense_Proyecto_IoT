@@ -57,3 +57,13 @@ docker compose -p wf-edge-ai -f docker-compose.yml -f docker-compose.edge-limits
 5. Completar el informe de 8–12 páginas y defensa, citando qué es implementado/probado y qué es solamente experimental.
 
 **No se deben hacer más ajustes de los umbrales en esta entrega usando las mismas semillas**. Cualquier cambio futuro requiere nueva hipótesis, nueva validación de desarrollo, ensayo ciego adicional y aprobación del equipo.
+
+## Fondo ambiental elevado — investigación P0 sin solución aceptada (22/11/2026)
+
+Se documentó y evaluó el problema de `suspected_fire` incorrecto bajo contaminación de fondo global sintética; ver `docs/CIERRE_P0_CONTAMINACION_FONDO.md` y [PR experimental #12](https://github.com/guillen-eng/WildfireSense_Proyecto_IoT/pull/12).
+
+- Fase de desarrollo PM temporal en dos nodos, semillas 901–906: ningún umbral mantuvo detección >=10/12 fuegos con cero falsas sospechas en el fondo elevado.
+- Fase PM temporal + temperatura en un nodo, semillas 921–926: el corte que redujo falsas sospechas a 0/24 detectó solamente 6/12 fuegos.
+- **No se ha aprobado ningún nuevo filtro ni se ha alterado el detector V4 de la PR #9.** El Random Forest y el SOS permanecen intactos. La issue #11 sigue abierta.
+- El experimento rechazado permanece **sin fusionar**, y no debe describirse como un `fix` de robustez. Los números se refieren solo a episodios sintéticos, no a incendios reales.
+- Para la entrega: mostrar el problema y explicar el compromiso sensibilidad/especificidad; para corregirlo de verdad hacen falta datos externos con etiquetas y/o modalidades de sensor complementarias. No seguir ajustando sobre las mismas semillas.
