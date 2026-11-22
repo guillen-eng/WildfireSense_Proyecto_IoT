@@ -6,7 +6,7 @@ import time
 import uuid
 from collections import Counter, deque
 import paho.mqtt.client as mqtt
-from .logic import Engine, ALERTS, HEALTH, READINGS, SOS, iso
+from .logic import Engine, DetectionPolicy, ALERTS, HEALTH, READINGS, SOS, iso
 from .transport import (
     ACK,
     PING,
@@ -24,7 +24,12 @@ from .transport import (
 
 class Gateway:
     def __init__(self):
-        self.engine = Engine()
+        isolated_env = os.getenv("EDGE_ISOLATED_ESCALATION", "0")
+        if isolated_env not in ("0", "1"):
+            raise ValueError("EDGE_ISOLATED_ESCALATION must be 0 or 1")
+        self.engine = Engine(policy=DetectionPolicy(
+            isolated_enabled=isolated_env == "1"
+        ))
         self.store = Journal(os.getenv("EDGE_DB", "state/edge.sqlite"))
         self.client = mqtt.Client(
             mqtt.CallbackAPIVersion.VERSION2, client_id="wildfiresense-edge"
@@ -72,7 +77,9 @@ class Gateway:
             return
         self.send(topic, wire(event), 1)
         self.count[event["decision"]] += 1
-        if event["decision"] in ("suspected_fire", "sos_alert"):
+        if event["decision"] in (
+            "suspected_fire", "sos_alert", "unconfirmed_fire_risk"
+        ):
             print(
                 "ALARMA LOCAL",
                 event["decision"],
@@ -174,6 +181,7 @@ class Gateway:
             rejected_order=eng.rejected_order,
             evictions=eng.evictions,
             model=eng.forest.version,
+            isolated_escalation_enabled=eng.policy.isolated_enabled,
             cloud_available=self.uplink(),
             cloud_rtt_ms=self.rtt,
             backlog=self.store.backlog(),
