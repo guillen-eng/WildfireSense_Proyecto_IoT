@@ -1,0 +1,35 @@
+name: WildfireSense V4 Cloud regression
+
+on:
+  push:
+    branches:
+      - feature/cloud-v4-reliability
+    paths:
+      - "demos/edge1000-v4/cloud/**"
+      - "demos/edge1000-v4/tests/**"
+      - ".github/workflows/cloud-v4-tests.yml"
+  pull_request:
+    paths:
+      - "demos/edge1000-v4/cloud/**"
+      - "demos/edge1000-v4/tests/**"
+      - ".github/workflows/cloud-v4-tests.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: demos/edge1000-v4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install vendored MQTT client without external Python dependencies
+        run: python -m pip install --no-index -r requirements.txt
+      - name: Run Cloud and V4 regression suite
+        run: python -m unittest discover -s tests -v

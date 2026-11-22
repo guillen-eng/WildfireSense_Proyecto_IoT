@@ -131,7 +131,60 @@ class AlertStore:
                    VALUES (?,?,?,?,?,?,?,?)""",
                 (digest, node, typ, prio, generated, utc_now(), latency, canonical),
             )
-        return "inserted" if cursor.rowcount == 1 else "duplicate"
+            if cursor.rowcount == 1:
+                return "inserted"
+            previous = conn.execute(
+                "SELECT payload_json FROM alerts WHERE event_hash = ?", (digest,)
+            ).fetchone()
+        # A reused event_id with different contents is NOT a delivered duplicate:
+        # acknowledging it would remove the still-pending event from the Edge journal.
+        return (
+            "duplicate"
+            if previous is not None and previous["payload_json"] == canonical
+            else "conflict"
+        )
+
+    def ingest_summary(self, payload: bytes) -> tuple[str, str | None]:
+        """Validate and persist one aggregated window before application-level ACK.
+
+        Returns (inserted|duplicate|conflict|invalid, event_id or None).
+        A content conflict never qualifies for an ACK.
+        """
+        if not isinstance(payload, bytes) or not 0 < len(payload) <= MAX_PAYLOAD_BYTES:
+            return "invalid", None
+        try:
+            data = json.loads(payload.decode("utf-8"))
+            if not isinstance(data, dict):
+                return "invalid", None
+            summary = summarize(data)
+            event_id = summary.get("event_id")
+            generated_at = summary.get("generated_at")
+            if (
+                not isinstance(event_id, str)
+                or not 0 < len(event_id) <= 128
+                or not isinstance(generated_at, str)
+                or not 0 < len(generated_at) <= 128
+            ):
+                return "invalid", None
+            body = wire(summary)
+        except (UnicodeDecodeError, json.JSONDecodeError, KeyError, TypeError, ValueError):
+            return "invalid", None
+
+        with self.connect() as conn:
+            cursor = conn.execute(
+                "INSERT OR IGNORE INTO summaries(id,payload) VALUES (?,?)",
+                (event_id, body),
+            )
+            if cursor.rowcount == 1:
+                return "inserted", event_id
+            previous = conn.execute(
+                "SELECT payload FROM summaries WHERE id = ?", (event_id,)
+            ).fetchone()
+        return (
+            ("duplicate", event_id)
+            if previous is not None and previous["payload"] == body
+            else ("conflict", event_id)
+        )
 
     def alerts(
         self,
@@ -161,6 +214,15 @@ class AlertStore:
             obj.pop("event_hash")
             results.append(obj)
         return results
+
+    def summaries(self, limit: int = 100):
+        """Return persisted aggregation windows, newest ingestion first."""
+        limit = max(1, min(200, int(limit)))
+        with self.connect() as conn:
+            rows = conn.execute(
+                "SELECT payload FROM summaries ORDER BY rowid DESC LIMIT ?", (limit,)
+            ).fetchall()
+        return [json.loads(row["payload"]) for row in rows]
 
     def incidents(self, limit: int = 100):
         """Derived view; never changes the immutable alert event log."""
@@ -206,12 +268,16 @@ class AlertStore:
             summary = conn.execute(
                 "SELECT payload FROM summaries ORDER BY rowid DESC LIMIT 1"
             ).fetchone()
+            summary_count = conn.execute(
+                "SELECT COUNT(*) FROM summaries"
+            ).fetchone()[0]
             last = conn.execute(
                 "SELECT received_at FROM alerts ORDER BY id DESC LIMIT 1"
             ).fetchone()
         counts = {r["alert_type"]: r["n"] for r in rows}
         return {
             "last_summary": json.loads(summary[0]) if summary else None,
+            "total_summaries": summary_count,
             "total_alerts": sum(counts.values()),
             "environmental_alerts": counts.get("environmental_alert", 0),
             "sos_alerts": counts.get("sos_alert", 0),
@@ -262,6 +328,12 @@ def build_handler(store: AlertStore, status: BrokerStatus):
                         "edge": status.edge_status,
                         "mqtt_connected": status.connected.is_set(),
                     }
+                elif uri.path == "/api/summaries":
+                    raw_limit = query.get("limit", ["100"])[0]
+                    if (len(raw_limit) > 4 or not raw_limit.isdigit()
+                            or int(raw_limit) == 0):
+                        return self.json_error(400, "limit debe ser entero de 1 a 200")
+                    data = {"summaries": store.summaries(min(int(raw_limit), 200))}
                 elif uri.path == "/api/incidents":
                     raw_limit = query.get("limit", ["100"])[0]
                     if (len(raw_limit) > 4 or not raw_limit.isdigit()
@@ -362,13 +434,13 @@ def run_mqtt(store: AlertStore, status: BrokerStatus, host: str, port: int):
                 client.publish(PONG, msg.payload, qos=0)
                 return
             if msg.topic == SUMMARY:
-                summary = summarize(json.loads(msg.payload))
-                with store.connect() as conn:
-                    conn.execute(
-                        "INSERT OR IGNORE INTO summaries VALUES(?,?)",
-                        (summary["event_id"], wire(summary)),
-                    )
-                client.publish(ACK, wire(dict(event_id=summary["event_id"])), qos=1)
+                result, ident = store.ingest_summary(msg.payload)
+                if result in ("inserted", "duplicate"):
+                    client.publish(ACK, wire(dict(event_id=ident)), qos=1)
+                elif result == "conflict":
+                    LOGGER.error("SUMMARY_ID_CONFLICT not acknowledged")
+                else:
+                    LOGGER.warning("SUMMARY_REJECTED invalid payload")
                 return
             result = store.ingest(msg.topic, msg.payload)
             if result in ("inserted", "duplicate") and (
@@ -381,6 +453,8 @@ def run_mqtt(store: AlertStore, status: BrokerStatus, host: str, port: int):
                 )
             elif result == "invalid":
                 LOGGER.warning("ALERT_REJECTED topic=%s", msg.topic)
+            elif result == "conflict":
+                LOGGER.error("ALERT_ID_CONFLICT topic=%s not acknowledged", msg.topic)
         except (ValueError, KeyError, TypeError, sqlite3.Error):
             LOGGER.exception("ALERT_STORE_ERROR database write failed")
             # Paho will still ACK QoS1; do not claim this is lossless under DB failure.
