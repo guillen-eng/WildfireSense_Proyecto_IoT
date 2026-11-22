@@ -63,8 +63,9 @@ def evaluate_policy(forest, policy, seeds, scene_source=make_scene):
         for scene in SCENES:
             stream, _nodes, t0 = scene_source(seed, scene)
             engine = Engine(forest=forest, policy=policy)
-            first_fire = first_advisory = None
+            first_fire = first_advisory = first_isolated = None
             pre_onset_high = high_count = advisory_count = 0
+            isolated_count = isolated_pre_onset = 0
             sequences = {}
             for node, t, values, _truth_label in stream:
                 node_id = checked_node(node)
@@ -80,6 +81,12 @@ def evaluate_policy(forest, policy, seeds, scene_source=make_scene):
                             pre_onset_high += 1
                         elif first_fire is None:
                             first_fire = t - t0
+                    elif ev["decision"] == "unconfirmed_fire_risk":
+                        isolated_count += 1
+                        if t < t0:
+                            isolated_pre_onset += 1
+                        elif first_isolated is None:
+                            first_isolated = t - t0
                     elif ev["decision"] == "environmental_risk":
                         advisory_count += 1
                         if t >= t0 and first_advisory is None:
@@ -91,11 +98,16 @@ def evaluate_policy(forest, policy, seeds, scene_source=make_scene):
                 advisory_delay_s=round(first_advisory, 2) if first_advisory is not None else None,
                 pre_ignition_high=pre_onset_high, high_events=high_count,
                 advisory_events=advisory_count,
+                isolated_events=isolated_count,
+                isolated_pre_ignition=isolated_pre_onset,
+                isolated_delay_s=round(first_isolated, 2) if first_isolated is not None else None,
             ))
 
     fire = [e for e in episodes if e["is_fire"]]
     negatives = [e for e in episodes if not e["is_fire"]]
     delays = [e["high_delay_s"] for e in fire if e["high_delay_s"] is not None]
+    isolated_delays = [e["isolated_delay_s"] for e in fire
+                       if e["isolated_delay_s"] is not None]
     result = dict(
         fire_episodes=len(fire), negative_episodes=len(negatives),
         high_detected=len(delays),
@@ -103,6 +115,15 @@ def evaluate_policy(forest, policy, seeds, scene_source=make_scene):
         negative_high_episodes=sum(e["high_events"] > 0 for e in negatives),
         negative_advisory_episodes=sum(e["advisory_events"] > 0 for e in negatives),
         pre_ignition_high_episodes=sum(e["pre_ignition_high"] > 0 for e in fire),
+        isolated_detected=len(isolated_delays),
+        isolated_false_episodes=sum(e["isolated_events"] > 0 for e in negatives),
+        isolated_pre_ignition_episodes=sum(e["isolated_pre_ignition"] > 0 for e in fire),
+        isolated_delay_mean_s=(round(sum(isolated_delays)/len(isolated_delays), 2)
+                               if isolated_delays else None),
+        isolated_delay_p95_s=percentile(isolated_delays, 0.95),
+        isolated_detected_by_5m=sum(d <= 300 for d in isolated_delays),
+        isolated_detected_by_15m=sum(d <= 900 for d in isolated_delays),
+        isolated_detected_by_30m=sum(d <= 1800 for d in isolated_delays),
         delay_mean_s=round(sum(delays) / len(delays), 2) if delays else None,
         delay_p50_s=percentile(delays, 0.50),
         delay_p95_s=percentile(delays, 0.95),
