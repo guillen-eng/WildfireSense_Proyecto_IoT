@@ -52,7 +52,8 @@ def percentile(values, q):
     pos = (len(ordered) - 1) * q
     low = math.floor(pos)
     high = math.ceil(pos)
-    return round(ordered[low] * (high - pos) + ordered[high] * (pos - low), 2)
+    weight = pos - low
+    return round(ordered[low] * (1 - weight) + ordered[high] * weight, 2)
 
 
 def evaluate_policy(forest, policy, seeds):
@@ -64,12 +65,12 @@ def evaluate_policy(forest, policy, seeds):
             engine = Engine(forest=forest, policy=policy)
             first_fire = first_advisory = None
             pre_onset_high = high_count = advisory_count = 0
+            sequences = {}
             for node, t, values, _truth_label in stream:
+                node_id = checked_node(node)
+                sequences[node_id] = sequences.get(node_id, 0) + 1
                 _prediction, events = engine.evaluate(
-                    "threshold-study", checked_node(node), "a",
-                    engine.nodes.get(("threshold-study", checked_node(node))).seq + 1
-                    if ("threshold-study", checked_node(node)) in engine.nodes
-                    else 1,
+                    "threshold-study", node_id, "a", sequences[node_id],
                     t, values, period=PERIOD,
                 )
                 for ev in events:
