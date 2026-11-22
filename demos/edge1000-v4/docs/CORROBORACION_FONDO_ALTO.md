@@ -36,3 +36,21 @@ Prioridad 3: si varias alternativas cumplen, preferir la menor demora p95 y el v
 **Alcance:** sigue siendo un generador sintético perturbado. La decisión NO certifica detección de incendios forestales reales; exige calibración y evaluación externa para desplegarla fuera de clase.
 
 **Integración:** este trabajo se crea apilado sobre la PR #9 para no pisar Cloud PR #7 ni la topología de 2 portátiles PR #8.
+
+## Fase 1 finalizada — NO seleccionar (acciones #45050548439)
+
+El sweep 901–906 pasó 70 tests, pero **ninguno** de los 9 candidatos con incremento de PM2.5 en ambos vecinos cumplió los criterios preestablecidos. En los 24 negativos de alto fondo: V4 falló 24/24; PM rise>=4 dio 18/24; PM rise>=8 dio 3/24 pero dejó de detectar 5/12 episodios de incendio habituales. **Se rechaza la fase 1**, sin activar flags ni cambiar el bosque.
+
+## Fase 2, NUEVA hipótesis, registrada antes de ensayos 921–926
+
+La falta de especificidad de PM2.5 obliga a considerar una señal ambiental adicional. Hipótesis: exigir (a) subidas PM recientes en ambos sensores, **y** (b) incremento de temperatura rápida frente a lenta en **al menos uno** de esos dos nodos, disminuirá falsos debidos a partículas elevadas sin calor local.
+
+**Precaución científica:** el humo desplazado desde incendios puede no calentar un sensor remoto; la puerta térmica aumentará falsos negativos. La temperatura también puede aumentar por sol, por lo que tampoco prueba fuego. Dos canales físicos no equivalen a dos pruebas independientes de causalidad.
+
+Mantener el bosque fijo, sólo condicionar `suspected_fire`. En el nuevo conjunto de desarrollo 921–926, comparar V4 original, la primera fase sin temperatura y nueve alternativas `pmrise ∈ {2,4,8}` × `temprise ∈ {0.25,0.5,1.0} °C`, caducidad 300 s para ambas señales (elección arquitectónica, no calibrada). No explorar otros valores ni usar las semillas ya examinadas para seleccionar.
+
+**Gate de desarrollo preregistrado:** en los 24 negativos `high_background`, **cero `suspected_fire`** y **cero alertas antes de ignición**; en normales, no empeorar falsas alertas, detectar >=10/12 incendios, perder como máximo 2 detecciones antes de 15 minutos respecto a V4. Ante varios candidatos, mayor detección por 15 min, luego menor p95, luego menor PM/T corte.
+
+**Gate sellado preregistrado (si alguno pasa):** semillas **1121–1132** SIN mirar antes. Exigir cero `suspected_fire` en negativos de `baseline` y `high_background`, cero previas a ignición, >=20/24 incendios detectados en normal y no perder >4 detecciones antes de 15 min respecto a V4. Documentar valores con humo grueso, niebla y sesgo PM. No se reoptimiza sobre 1121–1132.
+
+Si esta segunda hipótesis tampoco cumple, **se detiene la búsqueda de umbrales** en esta entrega y se documenta el límite de identificación de humo con los sensores actuales. No inventar un resultado positivo.
