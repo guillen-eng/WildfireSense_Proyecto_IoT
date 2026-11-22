@@ -36,10 +36,10 @@ class DetectionPolicy:
     neighbour_ttl_s: float = NEIGHBOUR_TTL
     clear_s: float = 60.0
     isolated_enabled: bool = False  # keep V4 behavior until candidate validated
-    isolated_persist_s: float = 180.0
+    isolated_persist_s: float = 120.0
     isolated_min_fire_score: float = 0.80
     isolated_min_pm25_rise: float = 8.0
-    isolated_min_temperature_rise: float = 0.0  # opt-in second-channel gate
+    isolated_min_temperature_rise: float = 0.5  # B2: pre-registered synthetic candidate
 
     def __post_init__(self):
         checks = (
