@@ -62,3 +62,15 @@ Fuente: [GitHub Actions #45050854776](https://github.com/guillen-eng/WildfireSen
 - No usar test sellado 1121–1132 para continuar iterando en esta entrega; permanecerá sin mirar al no haber candidato aprobado.
 
 **Conclusión:** el problema se ha medido y caracterizado, pero **no corregido** dentro de los criterios predefinidos. El resultado defendible es una limitación explícita y reproducible, no afirmar una solución inexistente.
+
+## 6. Verificación final de que la investigación NO rompe Edge
+
+[GitHub Actions #45051185130](https://github.com/guillen-eng/WildfireSense_Proyecto_IoT/actions/runs/45051185130) — ejecución **correcta** (71 tests + prueba MQTT Docker), después de bloquear la activación de filtros no aprobados:
+
+- **1.000 clientes MQTT independientes**, **6.000/6.000** lecturas recibidas, PDR observado = **1,0** a ~100 mensajes/s.
+- **Random Forest** `rf-a288fc78989a`, `corroboration_trend_enabled = false` y `isolated_escalation_enabled = false` (baseline original).
+- **Edge limitado a 0,5 CPU y 512 MiB**; sin OOM. `processing_p95_ms = 0.149`, `sender_to_decision_p95_ms = 0.603` **en el runner Docker CI**, no en hardware de entrega ni en comunicaciones LoRa.
+- El constructor del gateway rechaza `EDGE_CORROBORATION_TREND_GATE=1` explícitamente; el test de rechazo está entre los 71 tests.
+- Esta prueba fue en escenario MQTT `normal`; la ruta de SOS y política B2 fue demostrada previamente en la [CI de PR #9](https://github.com/guillen-eng/WildfireSense_Proyecto_IoT/actions/runs/45048746292). No confundir la prueba de 1.000 clientes normales con una prueba de precisión de incendios.
+
+**Decisión final registrada:** el cambio NO se declara solución P0, la Issue #11 queda abierta para datos externos y sensores calibrados; mantener Edge funcional, Random Forest intacto y todo el análisis negativo reproducible en PR #12.
