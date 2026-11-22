@@ -40,6 +40,9 @@ class DetectionPolicy:
     isolated_min_fire_score: float = 0.80
     isolated_min_pm25_rise: float = 8.0
     isolated_min_temperature_rise: float = 0.5  # B2: pre-registered synthetic candidate
+    corroboration_trend_enabled: bool = False  # off: exact V4 behaviour
+    corroboration_min_pm25_rise: float = 4.0
+    corroboration_trend_ttl_s: float = 300.0
 
     def __post_init__(self):
         checks = (
@@ -53,8 +56,14 @@ class DetectionPolicy:
             (self.isolated_min_fire_score, 0, 1),
             (self.isolated_min_pm25_rise, 0, float("inf")),
             (self.isolated_min_temperature_rise, 0, float("inf")),
+            (self.corroboration_min_pm25_rise, 0, float("inf")),
+            (self.corroboration_trend_ttl_s, 0, float("inf")),
         )
         if (type(self.isolated_enabled) is not bool
+                or type(self.corroboration_trend_enabled) is not bool
+                or (self.corroboration_trend_enabled
+                    and (self.corroboration_min_pm25_rise <= 0
+                         or self.corroboration_trend_ttl_s <= 0))
                 or any(not math.isfinite(v) or not lo <= v <= hi for v, lo, hi in checks)
                 or self.isolated_min_fire_score < self.fire_score
                 or self.isolated_persist_s < self.persist_s):
@@ -134,6 +143,7 @@ class Node:
     health: str = "OK"
     since: float | None = None
     evidence: float = -math.inf
+    pm_rise_at: float = -math.inf  # most recent causal ML rise above local baseline
     risk: bool = False
     alarm: bool = False
     unconfirmed_alarm: bool = False
@@ -190,7 +200,7 @@ class Engine:
         for (rid, n), s in self.nodes.items():
             if rid == run and s.health != "FALLO" and t - s.t > max(45, 2.5 * s.period):
                 s.health = "FALLO"
-                s.evidence = -math.inf
+                s.evidence = s.pm_rise_at = -math.inf
                 s.risk = s.alarm = s.unconfirmed_alarm = False
                 s.since = s.clear_since = None
                 events.append(
@@ -287,7 +297,7 @@ class Engine:
                 s.last_values = None
                 s.since = s.clear_since = None
                 s.risk = s.alarm = s.unconfirmed_alarm = False
-                s.evidence = -math.inf
+                s.evidence = s.pm_rise_at = -math.inf
         if period is not None:
             s.period = period
         s.seq, s.t, s.clock = seq, t, clock
@@ -335,6 +345,13 @@ class Engine:
                 and x[2] >= self.policy.min_fine_fraction
             )
         if fire:
+            # Relative-to-local-background evidence is causal, bounded by TTL,
+            # and only accompanies the ORIGINAL ML fire evidence. An opt-in
+            # corroboration filter may require two independent node trends.
+            if (self.policy.corroboration_trend_enabled
+                    and self.mode == "ml" and s.health == "OK"
+                    and x[3] >= self.policy.corroboration_min_pm25_rise):
+                s.pm_rise_at = t
             s.clear_since = None
             if s.since is None:
                 s.since = t
@@ -365,6 +382,15 @@ class Engine:
                             o
                             and o.health == "OK"
                             and 0 <= t - o.evidence <= self.policy.neighbour_ttl_s
+                            and (
+                                not self.policy.corroboration_trend_enabled
+                                or self.mode != "ml"
+                                or (s.health == "OK"
+                                    and 0 <= t - s.pm_rise_at
+                                    <= self.policy.corroboration_trend_ttl_s
+                                    and 0 <= t - o.pm_rise_at
+                                    <= self.policy.corroboration_trend_ttl_s)
+                            )
                         ):
                             events.append(
                                 self.event(
@@ -375,6 +401,9 @@ class Engine:
                                     t,
                                     "suspected_fire",
                                     neighbour=other,
+                                    **({"corroboration_filter": "dual_pm25_trend"}
+                                       if self.policy.corroboration_trend_enabled
+                                       and self.mode == "ml" else {}),
                                     **info,
                                 )
                             )
@@ -413,6 +442,6 @@ class Engine:
                 s.clear_since = t
             if t - s.clear_since >= self.policy.clear_s:
                 s.alarm = s.risk = s.unconfirmed_alarm = False
-                s.evidence = -math.inf
+                s.evidence = s.pm_rise_at = -math.inf
         self.accepted += 1
         return (cls, score), events
