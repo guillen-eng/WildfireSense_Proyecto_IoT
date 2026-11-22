@@ -15,7 +15,7 @@
 | Reglas B2 opcionales en nodo aislado | `unconfirmed_fire_risk` (high pero `confirmation=unconfirmed`); nunca confundir con `suspected_fire` | `docs/POLITICA_B_NODO_AISLADO.md`, pruebas sintéticas selladas, tests unitarios |
 | Modelo inalterado al comparar umbrales | `DetectionPolicy` parametrizable, sin entrenar ni promover pesos | `lab/threshold_sensitivity.py`, `lab/isolated_policy_study.py` |
 | Realismo y límites | Benchmark interno por episodio; OOD sintético: PM alto, humedad, lectura sesgada, mezcla gruesa | `docs/RESULTADOS_EDGE_AI_20261122.md`, `docs/POLITICA_B_SELLADO_Y_B2.md` |
-| MQTT a 1.000 clientes con recursos | 6.000/6.000 lecturas, PDR observado 1,0, Edge 0,5 CPU/512 MiB, B2 activado sin Cloud | [CI Docker 45048438001](https://github.com/guillen-eng/WildfireSense_Proyecto_IoT/actions/runs/45048438001), no prueba radio física |
+| MQTT a 1.000 clientes con recursos | 6.000/6.000 lecturas, PDR observado 1,0, Edge 0,5 CPU/512 MiB, B2 activado sin Cloud | [CI Docker y MQTT B2 45048746292](https://github.com/guillen-eng/WildfireSense_Proyecto_IoT/actions/runs/45048746292), no prueba radio física |
 
 ## Política B: qué se ha decidido y por qué
 
@@ -46,11 +46,11 @@ docker compose -p wf-edge-ai -f docker-compose.yml -f docker-compose.edge-limits
 # Buscar isolated_escalation_enabled = true
 ```
 
-**No usar `docker compose down -v` con histórico de un proyecto anterior.** No mezclar dos proyectos Compose apuntando al mismo puerto MQTT 1883. La opción B2 también se puede probar con `lab.b2_mqtt_probe` vía MQTT; consultar la CI del último commit para ver si pasó la prueba de extremo a extremo con SOS.
+**No usar `docker compose down -v` con histórico de un proyecto anterior.** No mezclar dos proyectos Compose apuntando al mismo puerto MQTT 1883. La opción B2 se probó con `lab.b2_mqtt_probe` vía MQTT: [CI #45048746292](https://github.com/guillen-eng/WildfireSense_Proyecto_IoT/actions/runs/45048746292) verde, aunque pendiente de repetir en los portátiles físicos.
 
 ## Qué queda y en qué orden
 
-1. Verificar la última ejecución GitHub Actions de **B2 por MQTT con un único nodo y SOS**, y guardar evidencias. Una prueba de 1.000 clientes `normal` por sí sola no demuestra una alarma B2.
+1. **HECHO en CI:** [MQTT real con B2 y SOS](https://github.com/guillen-eng/WildfireSense_Proyecto_IoT/actions/runs/45048746292). Publicadas 143 lecturas sintéticas de un nodo: `environmental_risk` → `unconfirmed_fire_risk` de prioridad alta/no corroborada → `sos_alert` crítico, **sin** fabricar `suspected_fire` y con Cloud desconectada. Conservar el artefacto JSON y repetir el ensayo en Docker Desktop del equipo.
 2. Repetir Docker con el hardware de entrega y, cuando se reúna el equipo, en las **dos máquinas** acordadas con la profesora. Registrar CPU/RAM, MQTT p95/p99, desconexión, cola, sincronización de reloj.
 3. Integrar PR #9 mediante revisión de compañeros sin perder PR #7 Cloud; Issue #10 para distinguir `unconfirmed_fire_risk` en el panel.
 4. Documentar limitación de generalización: todos los resultados de detección son del mismo simulador o perturbaciones derivadas. Para estimar eficacia con incendios reales hay que obtener observaciones externas con etiquetas y sensores calibrados.
