@@ -1,0 +1,65 @@
+name: WildfireSense Edge AI 1000-node MQTT Docker E2E
+
+on:
+  push:
+    branches:
+      - feature/edge-ai-evidence-freeze
+    paths:
+      - ".github/workflows/edge-ai-mqtt-e2e.yml"
+      - "demos/edge1000-v4/edge/main.py"
+      - "demos/edge1000-v4/edge/logic.py"
+      - "demos/edge1000-v4/lab/mqtt_run.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  mqtt-1000-edge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: demos/edge1000-v4
+    steps:
+      - uses: actions/checkout@v4
+      - name: Start Docker Mosquitto and Edge with resource limits
+        run: |
+          docker compose -p wf-edge-ci -f docker-compose.yml -f docker-compose.edge-limits.yml up -d --build mosquitto edge
+          docker compose -p wf-edge-ci -f docker-compose.yml -f docker-compose.edge-limits.yml ps
+      - name: Exercise MQTT with 1000 independent clients and 6000 readings
+        run: |
+          docker compose -p wf-edge-ci -f docker-compose.yml -f docker-compose.edge-limits.yml run --rm --no-deps \
+            -v "$PWD/resultados:/app/resultados" \
+            simulator python -m lab.mqtt_run --clients 1000 --nodes 1000 \
+            --cycles 6 --period 10 --speed 1 --scene normal \
+            --out /app/resultados/ci_mqtt_1000.json
+      - name: Verify PDR and report processing/latency budget measured on CI host
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          x=json.loads(Path('resultados/ci_mqtt_1000.json').read_text())
+          assert x['clients']==1000 and x['publishing_clients']==1000
+          assert x['distinct_nodes_sent']==1000
+          assert x['sent']==6000 and x['received']==6000 and x['PDR']==1.0
+          print('MQTT E2E 1000',json.dumps({
+            k:x[k] for k in ('clients','sent','received','PDR','offered_msg_s','stats_after')
+          }, indent=2))
+          PY
+      - name: Display edge logs and resource limits
+        if: always()
+        run: |
+          docker compose -p wf-edge-ci -f docker-compose.yml -f docker-compose.edge-limits.yml logs --tail=80 edge mosquitto || true
+          docker inspect wf-edge-ci-edge-1 --format 'CPU NanoCPUs={{.HostConfig.NanoCpus}} Memory={{.HostConfig.Memory}} OOM={{.State.OOMKilled}}' || true
+      - name: Save reproducible MQTT counters
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: edge-mqtt-1000-${{ github.sha }}
+          path: demos/edge1000-v4/resultados/ci_mqtt_1000.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Stop only these CI containers without deleting persistent volumes
+        if: always()
+        run: docker compose -p wf-edge-ci -f docker-compose.yml -f docker-compose.edge-limits.yml down || true
