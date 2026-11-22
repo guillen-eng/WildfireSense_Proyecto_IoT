@@ -90,3 +90,27 @@ NOTA: antes de los comandos en una instalación limpia hay que **construir** las
 - [ ] Política para nodo aislado explícita y demostrada.
 - [ ] Alarmas y SOS idénticos con/sin Cloud; rendimiento y errores cuantificados.
 - [ ] Aprobación del equipo antes de fusionar a V4, conservando trazabilidad.
+
+## 9. Actualización final de la política B2 (22/11/2026)
+
+El equipo eligió estudiar el escalado condicionado de un sensor aislado. **Después de dos rondas preregistradas de prueba sintética**, se seleccionó la alternativa conservadora B2 *solo para un modo de demostración opcional*, sin alterar los umbrales originales del clasificador ni el archivo `forest.json`:
+
+| Parámetro optativo B2 | Valor | Procedencia |
+| --- | --- | --- |
+| Ausencia de vecino sano reciente | edad > `max(45,2.5 × periodo)` o inexistente | Semántica de calidad/availability ya presente en el watchdog V4 |
+| Persistencia total | >=120 s | Selección experimental por episodios de desarrollo 301–306 |
+| Score de fuego | >=0.80 | Puerta empírica más exigente que el score ordinario 0.65; NO es probabilidad calibrada |
+| `pm25_fast - pm25_slow` | >=8 µg/m³ | Puerta empírica de tendencia causal para evitar interpretar como incendio todo fondo de partículas alto |
+| `temperature_fast - temperature_slow` | >=0.5 °C | Puerta empírica adicional para reducir falsas alertas aisladas; puede perder humo que no calienta el punto de medición |
+| Tipo de evento | `unconfirmed_fire_risk` | `priority=high` y `confirmation=unconfirmed`; distinto de `suspected_fire`, sin afirmar confirmación |
+
+**Secuencia científica transparente:** B1, con puerta de temperatura >=0 °C, falló en el ensayo sellado 601–612 (6/48 falsos negativos de fondo alto); B2, seleccionado **antes de abrir** nuevas semillas 801–812, superó el criterio de aceptación *solo sintético limitado*: 11/24 fuegos aislados normales, 0/48 falsos normales y 0/48 falsos con fondo elevado, sin pre-ignición. La sensibilidad cae a 5/24 en humedad >=97 %, 1/24 con PM2.5 subestimado 30 % y 0/24 en una mezcla deliberadamente gruesa. Estas cifras no justifican desplegar B2 en un bosque real.
+
+Pruebas verificables:
+- [B1 rechazado](https://github.com/guillen-eng/WildfireSense_Proyecto_IoT/actions/runs/45047919874).
+- [B2 aprobada para demo sintética limitada](https://github.com/guillen-eng/WildfireSense_Proyecto_IoT/actions/runs/45048219655).
+- [B2 MQTT real y SOS, 1.000 clientes bajo 0.5 CPU / 512 MiB](https://github.com/guillen-eng/WildfireSense_Proyecto_IoT/actions/runs/45048746292).
+
+**Estado de producción académica:** el Edge V4 sigue usando la ruta original por defecto (`EDGE_ISOLATED_ESCALATION=0`); el overlay `docker-compose.edge-b2.yml` activa el experimento conscientemente. El equipo de Cloud debe representar la advertencia no corroborada en el panel (issue [#10](https://github.com/guillen-eng/WildfireSense_Proyecto_IoT/issues/10)), sin contarla como incidente espacialmente corroborado.
+
+**Interpretación:** ningún artículo revisado ni las diapositivas exige exactamente 120 s, 8 µg/m³ o 0.5 °C. Los números son hipótesis de ingeniería escogidas mediante pruebas de desarrollo y un test sellado dentro del simulador. La calidad real requiere observaciones etiquetadas externas y sensores calibrados.
