@@ -48,15 +48,19 @@ def policies():
     yield "off_baseline", DetectionPolicy()
     # Pre-specified engineering search region; score and rise refer to
     # uncalibrated model output and causal filtered PM fast-minus-slow.
-    for seconds in (120, 180, 240):
-        for score in (0.75, 0.85):
-            for pmrise in (4.0, 8.0):
-                label = f"B_p{seconds}_s{score:.2f}_d{pmrise:g}"
+    # Phase 2 hypothesis, proposed AFTER Phase 1 exposed high-background
+    # false alarms: require a concurrent temperature trend (fast minus slow).
+    # Thresholds remain provisional until fresh, sealed evaluation.
+    for seconds in (120, 180):
+        for pmrise in (4.0, 8.0):
+            for temp_rise in (0.0, 0.25, 0.5, 1.0):
+                label = f"B_p{seconds}_s0.80_d{pmrise:g}_t{temp_rise:g}"
                 yield label, replace(
                     DetectionPolicy(), isolated_enabled=True,
                     isolated_persist_s=seconds,
-                    isolated_min_fire_score=score,
+                    isolated_min_fire_score=0.80,
                     isolated_min_pm25_rise=pmrise,
+                    isolated_min_temperature_rise=temp_rise,
                 )
 
 
@@ -78,6 +82,7 @@ def study(seeds, forest=None):
                 persist_s=policy.isolated_persist_s,
                 score=policy.isolated_min_fire_score,
                 rise=policy.isolated_min_pm25_rise,
+                temperature_rise=policy.isolated_min_temperature_rise,
                 **metrics,
             ))
             episodes.extend(dict(candidate=label, mode=mode, **item)
