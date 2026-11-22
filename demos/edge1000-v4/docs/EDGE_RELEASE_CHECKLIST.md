@@ -16,12 +16,12 @@
 - [x] Resultados de sensibilidad y robustez sintética, incluidos los fallos, explicados en `docs/AI_THRESHOLDS.md`, `docs/POLITICA_B_NODO_AISLADO.md`, `docs/CIERRE_P0_CONTAMINACION_FONDO.md`.
 
 ## P0: aceptación en el portátil de entrega (pendiente)
-- [ ] Clonar esta rama en una **carpeta nueva**, evitando mezclar volúmenes y puertos con demos anteriores.
-- [ ] Verificar `docker compose ... config --quiet`, construcción `simulator` y todos los tests unitarios.
-- [ ] Iniciar solo Mosquitto + Edge con 0,5 CPU/512 MiB (Cloud no necesaria para aceptación Edge).
-- [ ] Enviar 1.000 clientes independientes / 6.000 lecturas; conservar salida completa y `PDR`, p95 y p99, CPU/RAM y `OOMKilled`; realizar **2 repeticiones** sin reiniciar el modelo.
-- [ ] Enviar datos de un escenario de incendio sintético, verificar `environmental_risk` y `suspected_fire` (con vecino).
-- [ ] Activar B2 **solo en instancia de ensayo aislada**, verificar `unconfirmed_fire_risk` y SOS sin Cloud, reiniciar modo V4 tras el ensayo. Nunca afirmar que ese aviso está corroborado.
+- [x] Clonada rama en **carpeta nueva** `WildfireSense_EDGE_FINAL`, proyecto Compose `wf-edge-final`, sin borrar volúmenes anteriores (ejecución local comunicada por el usuario).
+- [x] Build y 64/64 tests unitarios en Docker local, 5,980 s. La ejecución independiente de `config --quiet` no está confirmada por registro.
+- [x] Mosquitto healthy y Edge running sin Cloud; overlay de límites CPU/RAM aplicado en comando Compose (confirmar límites efectivos con `docker inspect`).
+- [ ] Primera repetición **completada** con 1.000 clientes, 6.000/6.000 y PDR 1,0; falta segunda repetición, `docker inspect` de los límites y OOM. Salida local `resultados/prueba_edge_1000.json`.
+- [x] `fast_fire`: 47.981/47.981, 9 `environmental_risk`, 9 `suspected_fire` con vecino y SOS 1/1 (salida local `resultados/prueba_edge_incendio.json`).
+- [x] B2 en Edge local: `node_0804`, 143 lecturas, `environmental_risk` → `unconfirmed_fire_risk` con `confirmation=unconfirmed` → SOS crítico; restablecido modo V4 y comprobado `isolated_escalation_enabled=false` (salida local `resultados/prueba_edge_B2.json`).
 - [ ] Documentar hardware, Docker/OS, versión de modelo, fecha y comandos. No usar `docker compose down -v` si necesitas conservar SQLite.
 
 ### Pasos Windows PowerShell para empezar (sin Python instalado)
@@ -47,3 +47,20 @@ docker compose -p wf-edge-final run --rm --no-deps -v "./tests:/app/tests:ro" si
 
 ## Criterio de "Edge listo"
 Modelo/umbrales congelados, todos los tests verdes, demo de 1.000 clientes y SOS repetida en portátil de entrega, resultados archivable y PR revisada por equipo. El falso positivo de PM ambiental elevado **debe figurar como limitación conocida**, no como problema resuelto.
+
+## Evidencia local comunicada por el equipo (22/11/2026)
+
+**Procedencia:** salidas de PowerShell pegadas en la conversación y ficheros JSON locales del usuario. No se han subido a GitHub ni revisado los bytes de los archivos; **no presentarlos como nueva ejecución CI**.
+
+| Ensayo | Lecturas/estado | Latencia y memoria |
+| --- | --- | --- |
+| 1.000 clientes MQTT independientes, normal, 10 s/lectura, 60 s | 6.000/6.000 (PDR 1,0), 1.000 nodos, 0 huecos/rechazos | p95 procesamiento 0,385 ms; p99 0,539 ms; p95 envío→decisión 2,108 ms; p99 23,085 ms; RSS pico Linux Edge 34.084 KiB |
+| `fast_fire` con 1 cliente emitiendo 1.000 nodos × 48 ciclos, speed ×8 | 47.981/47.981, PDR 1,0; 9 preavisos, 9 sospechas con vecino y SOS 1/1; Cloud ausente | p95 procesamiento 0,279 ms, p99 0,463 ms; p95 envío→decisión 10,312 ms, p99 18,549 ms (ventana de 50.000 eventos, **no sólo segunda prueba**); RSS pico 39.720 KiB |
+| B2 experimental en MQTT | 143 lecturas de `node_0804`; preaviso `environmental_risk`, alarma `unconfirmed_fire_risk` (no corroborada), `sos_alert` crítico | Confirmado desde el informe JSON del usuario; restaurado V4 con bandera B2 apagada |
+| Robustez offline, referencia, `fuego_rapido.jsonl` | 40.740 lecturas aceptadas, 0 descartes, primer aviso a 216,46 s | Retraso disponibilidad primer aviso 216,46 s |
+| Robustez offline, 5 % pérdida, 2 % duplicados, jitter 10 s | 2.008 pérdidas simuladas, 742 copias, 34.055 aceptadas, 5.419 rechazadas, 6.675 huecos | Primera sospecha según lectura 233,82 s; disponible a 238,93 s |
+| Misma perturbación + buffer experimental de 15 s | **38.732** aceptadas (exactamente 40.740−2.008), 742 rechazadas, 2.003 huecos | Primera sospecha según lectura 221,46 s; disponible a 237,65 s |
+
+**Interpretación estricta:** buffer recuperó 4.677 lecturas válidas reordenadas y descartó las 742 copias extra. El primer aviso disponible mejoró 1,28 s respecto al ensayo degradado, pero aún llegó 21,19 s después de la referencia limpia. Las cifras de sospechas por nodo (41,39,42) **no son tasas de incendios verdaderos**. Las pruebas offline no emitieron SOS; SOS MQTT sí se verificó por separado. La implementación `edge/reorder.py` **NO está conectada** al gateway vivo: resultado de investigación, no mejora desplegada. No se ha probado memoria, CPU o latencia del buffer en producción.
+
+**Próximo cierre:** repetir 1.000 clientes una vez más, comprobar `OOMKilled` y límites Docker reales, guardar JSON y capturas/versiones de hardware/OS; después revisar la PR #9 para integración.
