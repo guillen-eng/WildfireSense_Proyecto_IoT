@@ -42,7 +42,7 @@ jobs:
           meta=json.loads((folder/'study.json').read_text())
           data=list(csv.DictReader((folder/'candidates.csv').open()))
           assert meta['model']=='rf-a288fc78989a'
-          assert meta['candidate_count']==12 and len(data)==26
+          assert meta['candidate_count']==16 and len(data)==34
           assert all(x['isolated_detected']=='0' for x in data if x['candidate']=='off_baseline')
           print('Manual gate required. No candidate automatically deployed.')
           PY
