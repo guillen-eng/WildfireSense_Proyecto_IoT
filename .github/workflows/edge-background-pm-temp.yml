@@ -1,0 +1,51 @@
+name: Edge AI PM and temperature background development
+
+on:
+  push:
+    branches:
+      - feature/edge-ai-background-robustness
+    paths:
+      - "demos/edge1000-v4/lab/background_pm_temp_study.py"
+      - ".github/workflows/edge-background-pm-temp.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  study:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: demos/edge1000-v4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependency
+        run: python -m pip install --no-index -r requirements.txt
+      - name: Run V4 regression including new thermal condition
+        run: python -m unittest discover -s tests -v
+      - name: Run new development-only PM and temperature gate study
+        run: python -m lab.background_pm_temp_study --seeds 921 922 923 924 925 926 --out /tmp/wf-background-thermal
+      - name: Check evaluation provenance and candidate count
+        run: |
+          python - <<'PY'
+          import csv,json
+          from pathlib import Path
+          out=Path('/tmp/wf-background-thermal')
+          j=json.loads((out/'selection.json').read_text())
+          rows=list(csv.DictReader((out/'candidates.csv').open()))
+          assert j['model']=='rf-a288fc78989a'
+          assert j['development_seeds']==[921,922,923,924,925,926]
+          assert len(rows)==20
+          print('Manual review required. Proposed only:',j['candidate_for_one_sealed_test'])
+          PY
+      - name: Preserve all experimental evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: wf-background-thermal-dev-${{ github.sha }}
+          path: /tmp/wf-background-thermal/
+          retention-days: 30

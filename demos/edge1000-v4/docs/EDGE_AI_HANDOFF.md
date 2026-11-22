@@ -57,3 +57,17 @@ docker compose -p wf-edge-ai -f docker-compose.yml -f docker-compose.edge-limits
 5. Completar el informe de 8–12 páginas y defensa, citando qué es implementado/probado y qué es solamente experimental.
 
 **No se deben hacer más ajustes de los umbrales en esta entrega usando las mismas semillas**. Cualquier cambio futuro requiere nueva hipótesis, nueva validación de desarrollo, ensayo ciego adicional y aprobación del equipo.
+
+## Anexo — Issue P0 de fondo PM elevado (22/11/2026)
+
+La [PR #12](https://github.com/guillen-eng/WildfireSense_Proyecto_IoT/pull/12) (sobre la PR #9) documenta dos ensayos **sin mejora aprobada**; fichero principal `docs/CIERRE_P0_CONTAMINACION_FONDO.md`.
+
+- El escenario sintético adversarial de PM global elevado genera **24/24** falsos `suspected_fire` en la baseline V4 (semillas nuevas 901–906 y 921–926).
+- Exigir subida de PM en ambos nodos dejó **3/24** falsos, pero solo **7/12** incendios reconocidos.
+- Exigir además tendencia de temperatura eliminó las 24 falsas sospechas en el conjunto de desarrollo para el corte fuerte, pero redujo a **6/12** las detecciones originales.
+- Ningún candidato superó las reglas preestablecidas; **no hubo test sellado** y no se debe presentar como problema solucionado.
+- Se ha bloqueado la activación accidental en Gateway: `EDGE_CORROBORATION_TREND_GATE=1` produce error explícito. La inyección experimental sigue permitida solo en el motor offline.
+- La PR #12 debe permanecer sin fusionar mientras solo documenta un estudio y una política fallida; la línea V4 y B2 de PR #9 permanecen inalteradas por defecto.
+- Siguiente tarea real: diseñar validación con datos externos y/o instrumentación adicional. No ajustar más umbrales con estas mismas escenas para fabricar un resultado de éxito.
+
+**Conclusión para defensa:** sensores de partículas pueden detectar anomalías compatibles con humo, pero no permiten identificar la causa de todas las subidas ambientales; un segundo sensor con fondo alto compartido no elimina la ambigüedad.

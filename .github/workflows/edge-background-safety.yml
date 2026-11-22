@@ -1,0 +1,73 @@
+name: Edge AI baseline MQTT safety regression
+
+on:
+  push:
+    branches:
+      - feature/edge-ai-background-robustness
+    paths:
+      - "demos/edge1000-v4/edge/main.py"
+      - "demos/edge1000-v4/edge/logic.py"
+      - "demos/edge1000-v4/tests/test_background_corroboration.py"
+      - ".github/workflows/edge-background-safety.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  baseline-safety:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: demos/edge1000-v4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install vendored MQTT client
+        run: python -m pip install --no-index -r requirements.txt
+      - name: Run regressions with rejected gate locked off
+        run: python -m unittest discover -s tests -v
+      - name: Start broker and baseline Edge within CPU and RAM limits
+        run: docker compose -p wf-bg-safe -f docker-compose.yml -f docker-compose.edge-limits.yml up -d --build mosquitto edge
+      - name: Test 1000 independent MQTT clients
+        run: |
+          docker compose -p wf-bg-safe -f docker-compose.yml -f docker-compose.edge-limits.yml run --rm --no-deps \
+            -v "$PWD/resultados:/app/resultados" \
+            simulator python -m lab.mqtt_run --clients 1000 --nodes 1000 \
+            --cycles 6 --period 10 --speed 1 --scene normal \
+            --out /app/resultados/background_baseline_1000.json
+      - name: Verify baseline flags model PDR and timing
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          x=json.loads(Path('resultados/background_baseline_1000.json').read_text())
+          assert x['sent']==x['received']==6000
+          assert x['publishing_clients']==x['distinct_nodes_sent']==1000
+          assert x['PDR']==1.0
+          stats=x['stats_after']
+          assert stats['model']=='rf-a288fc78989a'
+          assert stats['corroboration_trend_enabled'] is False
+          assert stats['isolated_escalation_enabled'] is False
+          print(json.dumps({'PDR':x['PDR'],'edge_p95_ms':stats['processing_p95_ms'],
+                'sender_to_decision_p95_ms':stats['sender_to_decision_p95_ms'],
+                'baseline_gate_enabled':stats['corroboration_trend_enabled']},indent=2))
+          PY
+      - name: Verify container limits and no OOM
+        run: |
+          docker inspect wf-bg-safe-edge-1 --format 'CPU={{.HostConfig.NanoCpus}} RAM={{.HostConfig.Memory}} OOM={{.State.OOMKilled}}'
+          test "$(docker inspect wf-bg-safe-edge-1 --format '{{.State.OOMKilled}}')" = "false"
+      - name: Save counters as CI artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: edge-safe-baseline-${{ github.sha }}
+          path: demos/edge1000-v4/resultados/background_baseline_1000.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Stop CI containers without erasing volumes
+        if: always()
+        run: docker compose -p wf-bg-safe -f docker-compose.yml -f docker-compose.edge-limits.yml down
