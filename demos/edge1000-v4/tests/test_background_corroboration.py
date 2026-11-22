@@ -85,22 +85,20 @@ class CorroborationTrendTests(unittest.TestCase):
             with self.subTest(kwargs=kwargs), self.assertRaises(ValueError):
                 DetectionPolicy(**kwargs)
 
-    def test_environment_opt_in_does_not_affect_isolated_flag(self):
+    def test_gateway_refuses_unvalidated_filter_and_keeps_v4_off(self):
         with tempfile.TemporaryDirectory() as tmp:
             env = {"EDGE_DB": str(Path(tmp)/"edge.sqlite"),
                    "EDGE_CORROBORATION_TREND_GATE": "1",
                    "EDGE_ISOLATED_ESCALATION": "0"}
             with patch.dict(os.environ, env, clear=False):
-                g = Gateway()
-                self.assertTrue(g.engine.policy.corroboration_trend_enabled)
-                self.assertFalse(g.engine.policy.isolated_enabled)
-                g.client.disconnect()
-                g.store.db.close()
+                with self.assertRaisesRegex(ValueError, "NOT approved"):
+                    Gateway()
             with patch.dict(os.environ, {**env,
                                          "EDGE_CORROBORATION_TREND_GATE": "0"},
                             clear=False):
                 g = Gateway()
                 self.assertFalse(g.engine.policy.corroboration_trend_enabled)
+                self.assertFalse(g.engine.policy.isolated_enabled)
                 g.client.disconnect()
                 g.store.db.close()
 
