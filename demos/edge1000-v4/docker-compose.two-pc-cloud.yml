@@ -1,0 +1,41 @@
+# PC2 hosts only Cloud, persistence, dashboard and offline/periodic training jobs.
+# It connects to the MQTT broker running on PC1 over the private LAN.
+name: wildfiresense-two-pc-cloud
+
+services:
+  cloud:
+    build:
+      context: .
+      target: runtime
+    image: wildfiresense-cloud-ai:two-pc
+    command: ["python", "-m", "cloud.app"]
+    environment:
+      MQTT_HOST: "${EDGE_MQTT_HOST:?Set EDGE_MQTT_HOST to PC1 LAN IPv4}"
+      MQTT_PORT: "1883"
+      CLOUD_DB_PATH: /app/state/cloud.sqlite
+      HTTP_PORT: "8080"
+    # Dashboard accessible only from PC2 (not exposed to the LAN).
+    ports:
+      - "127.0.0.1:${CLOUD_HTTP_PORT:-8090}:8080"
+    volumes:
+      - cloud_state:/app/state
+    restart: unless-stopped
+
+  trainer:
+    profiles: ["training"]
+    build: {context: ., target: training}
+    volumes:
+      - ./candidate:/exchange
+
+  validator:
+    profiles: ["training"]
+    build: {context: ., target: runtime}
+    command: ["python", "-m", "lab.model_gate", "--candidate", "/exchange/candidate.json", "--baseline", "/app/models/forest.json", "--out", "/exchange/gate_report.json"]
+    volumes:
+      - ./candidate:/exchange
+      - ./models:/app/models:ro
+
+# Intentionally no promote service: promoting a file on PC2 does not deploy it
+# to PC1. Remote distribution needs an approved, integrity-checked workflow.
+volumes:
+  cloud_state:

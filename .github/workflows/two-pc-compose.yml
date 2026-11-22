@@ -1,0 +1,48 @@
+name: WildfireSense two-PC Compose validation
+
+on:
+  push:
+    branches:
+      - feature/two-pc-edge-cloud-topology
+  pull_request:
+    branches:
+      - feature/edge1000-v4-integration
+    paths:
+      - ".github/workflows/two-pc-compose.yml"
+      - "demos/edge1000-v4/docker-compose.two-pc-*.yml"
+      - "demos/edge1000-v4/docs/DESPLIEGUE_DOS_ORDENADORES.md"
+
+jobs:
+  static-compose:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: demos/edge1000-v4
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify Edge host Compose syntax
+        env:
+          EDGE_MQTT_BIND_IP: 192.168.1.50
+        run: docker compose -f docker-compose.two-pc-edge.yml config --quiet
+      - name: Verify Cloud host Compose syntax
+        env:
+          EDGE_MQTT_HOST: 192.168.1.50
+        run: docker compose -f docker-compose.two-pc-cloud.yml config --quiet
+      - name: Verify services remain assigned to separate computers
+        env:
+          EDGE_MQTT_BIND_IP: 192.168.1.50
+          EDGE_MQTT_HOST: 192.168.1.50
+        run: |
+          edge_services="$(docker compose -f docker-compose.two-pc-edge.yml --profile demo config --services)"
+          cloud_services="$(docker compose -f docker-compose.two-pc-cloud.yml --profile training config --services)"
+          echo "$edge_services"
+          echo "$cloud_services"
+          echo "$edge_services" | grep -qx mosquitto
+          echo "$edge_services" | grep -qx edge
+          echo "$edge_services" | grep -qx simulator
+          ! echo "$edge_services" | grep -qx cloud
+          echo "$cloud_services" | grep -qx cloud
+          echo "$cloud_services" | grep -qx trainer
+          echo "$cloud_services" | grep -qx validator
+          ! echo "$cloud_services" | grep -qx mosquitto
+          ! echo "$cloud_services" | grep -qx edge

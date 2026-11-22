@@ -1,0 +1,52 @@
+# Two physical computers: simulator, MQTT broker and critical Edge stay on PC1.
+# Private/trusted LAN only. Explicit host bind IP is required to prevent accidental exposure.
+name: wildfiresense-two-pc-edge
+
+x-runtime: &runtime
+  build:
+    context: .
+    target: runtime
+  image: wildfiresense-edge-ai:two-pc
+  environment:
+    MQTT_HOST: mosquitto
+    MQTT_PORT: "1883"
+
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2.0.21
+    ports:
+      - "${EDGE_MQTT_BIND_IP:?Set EDGE_MQTT_BIND_IP to the Edge LAN IPv4}:1883:1883"
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+    ulimits:
+      nofile: {soft: 8192, hard: 8192}
+    healthcheck:
+      test: ["CMD", "mosquitto_pub", "-h", "127.0.0.1", "-t", "health/broker", "-m", "1"]
+      interval: 3s
+      timeout: 2s
+      retries: 12
+    restart: unless-stopped
+
+  edge:
+    <<: *runtime
+    depends_on:
+      mosquitto: {condition: service_healthy}
+    volumes:
+      - edge_state:/app/state
+      - ./models:/app/models:ro
+    cpus: 0.5
+    mem_limit: 512m
+    restart: unless-stopped
+
+  simulator:
+    <<: *runtime
+    profiles: ["demo"]
+    command: ["python", "-m", "lab.mqtt_run"]
+    depends_on:
+      mosquitto: {condition: service_healthy}
+      edge: {condition: service_started}
+    ulimits:
+      nofile: {soft: 8192, hard: 8192}
+
+volumes:
+  edge_state:
