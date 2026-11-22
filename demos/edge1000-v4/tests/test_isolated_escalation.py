@@ -69,6 +69,57 @@ class IsolatedPolicyTests(unittest.TestCase):
         events = simulate_isolated(self.policy, rising=False)
         self.assertNotIn("unconfirmed_fire_risk", [e["decision"] for e in events])
 
+    def test_missing_or_stale_neighbour_does_not_block_escalation(self):
+        engine = Engine(forest=ConstantForest(), policy=self.policy)
+        # A neighbour that reports only at t=0 becomes stale; it must not
+        # count as available evidence 3 minutes later.
+        engine.evaluate("study", "node_0002", "boot", 1, 0.0,
+                        (8.0, 20.0, 23.0, 55.0), period=10)
+        found = []
+        for i in range(45):
+            t = float(i * 10)
+            pm = 8.0 + 4.0*i
+            _, produced = engine.evaluate(
+                "study", "node_0001", "boot", i+1, t,
+                (pm, pm*1.6, 23.0 + i*0.03, 55.0), period=10)
+            found.extend(produced)
+        self.assertEqual(
+            sum(e["decision"] == "unconfirmed_fire_risk" for e in found), 1
+        )
+
+    def test_later_real_corroboration_upgrades_not_rewrites_unconfirmed(self):
+        engine = Engine(forest=ConstantForest(), policy=self.policy)
+        found = []
+        seq = {"node_0001": 0, "node_0002": 0}
+        for i in range(60):
+            t = float(i * 10)
+            seq["node_0001"] += 1
+            pm = 8.0 + 4.0*i
+            _, generated = engine.evaluate(
+                "study", "node_0001", "boot", seq["node_0001"], t,
+                (pm, pm*1.6, 23.0 + i*0.03, 55.0), period=10)
+            found.extend(generated)
+            if i >= 45:
+                seq["node_0002"] += 1
+                pm2 = 30.0 + 4.0*(i - 45)
+                _, generated = engine.evaluate(
+                    "study", "node_0002", "boot", seq["node_0002"], t,
+                    (pm2, pm2*1.6, 23.0 + (i-45)*0.03, 55.0), period=10)
+                found.extend(generated)
+        unconfirmed = [e for e in found
+                       if e["decision"] == "unconfirmed_fire_risk"]
+        confirmed = [e for e in found
+                     if e["decision"] == "suspected_fire"]
+        self.assertEqual(len(unconfirmed), 1)
+        self.assertGreaterEqual(len(confirmed), 1)
+        self.assertTrue(all(e["event_id"] != unconfirmed[0]["event_id"]
+                            for e in confirmed))
+        self.assertTrue(all(e.get("neighbour") for e in confirmed))
+        self.assertLess(
+            unconfirmed[0]["reading_timestamp"],
+            confirmed[0]["reading_timestamp"],
+        )
+
     def test_stronger_gates_prevent_escalation(self):
         for cfg in [
             DetectionPolicy(isolated_enabled=True, isolated_min_fire_score=0.99),
