@@ -104,7 +104,7 @@ El equipo eligió estudiar el escalado condicionado de un sensor aislado. **Desp
 | `temperature_fast - temperature_slow` | >=0.5 °C | Puerta empírica adicional para reducir falsas alertas aisladas; puede perder humo que no calienta el punto de medición |
 | Tipo de evento | `unconfirmed_fire_risk` | `priority=high` y `confirmation=unconfirmed`; distinto de `suspected_fire`, sin afirmar confirmación |
 
-**Secuencia científica transparente:** B1, con puerta de temperatura >=0 °C, falló en el ensayo sellado 601–612 (6/48 falsos negativos de fondo alto); B2, seleccionado **antes de abrir** nuevas semillas 801–812, superó el criterio de aceptación *solo sintético limitado*: 11/24 fuegos aislados normales, 0/48 falsos normales y 0/48 falsos con fondo elevado, sin pre-ignición. La sensibilidad cae a 5/24 en humedad >=97 %, 1/24 con PM2.5 subestimado 30 % y 0/24 en una mezcla deliberadamente gruesa. Estas cifras no justifican desplegar B2 en un bosque real.
+**Secuencia científica transparente:** B1, con puerta de temperatura >=0 °C, falló en el ensayo sellado 601–612 (6/48 episodios negativos con falsa alerta alta ante fondo elevado); B2, seleccionado **antes de abrir** nuevas semillas 801–812, superó el criterio de aceptación *solo sintético limitado*: 11/24 fuegos aislados normales, 0/48 falsos normales y 0/48 falsos con fondo elevado, sin pre-ignición. La sensibilidad cae a 5/24 en humedad >=97 %, 1/24 con PM2.5 subestimado 30 % y 0/24 en una mezcla deliberadamente gruesa. Estas cifras no justifican desplegar B2 en un bosque real.
 
 Pruebas verificables:
 - [B1 rechazado](https://github.com/guillen-eng/WildfireSense_Proyecto_IoT/actions/runs/45047919874).
