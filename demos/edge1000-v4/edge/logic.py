@@ -21,6 +21,34 @@ PERSIST = 30
 NEIGHBOUR_TTL = 180
 
 
+@dataclass(frozen=True)
+class DetectionPolicy:
+    """Experimental alarm thresholds, independent of trained forest weights.
+
+    Defaults reproduce the V4 detector byte-for-byte at the decision level.
+    Vary only in offline evaluation; do not auto-tune on held-out test data.
+    """
+
+    fire_score: float = FIRE_SCORE
+    min_pm25: float = 18.0
+    min_fine_fraction: float = 0.36
+    persist_s: float = PERSIST
+    neighbour_ttl_s: float = NEIGHBOUR_TTL
+    clear_s: float = 60.0
+
+    def __post_init__(self):
+        checks = (
+            (self.fire_score, 0, 1),
+            (self.min_pm25, 0, float("inf")),
+            (self.min_fine_fraction, 0, 1),
+            (self.persist_s, 0, float("inf")),
+            (self.neighbour_ttl_s, 0, float("inf")),
+            (self.clear_s, 0, float("inf")),
+        )
+        if any(not math.isfinite(v) or not lo <= v <= hi for v, lo, hi in checks):
+            raise ValueError("Invalid detection policy thresholds")
+
+
 def iso(t):
     return datetime.fromtimestamp(t, timezone.utc).isoformat(timespec="milliseconds")
 
@@ -101,8 +129,11 @@ class Node:
 
 
 class Engine:
-    def __init__(self, forest=None, mode="ml", capacity=4096):
+    def __init__(self, forest=None, mode="ml", capacity=4096, policy=None):
         self.forest = forest or Forest()
+        self.policy = DetectionPolicy() if policy is None else policy
+        if not isinstance(self.policy, DetectionPolicy):
+            raise TypeError("policy must be DetectionPolicy")
         self.mode = mode
         self.capacity = capacity
         self.nodes = OrderedDict()
@@ -284,12 +315,16 @@ class Engine:
             fire = x[0] >= 35.5 and x[2] >= 0.30 and (x[5] < 90 or x[4] > 1.5)
         else:
             cls, score = self.forest.predict(x)
-            fire = score >= FIRE_SCORE and x[0] >= 18 and x[2] >= 0.36
+            fire = (
+                score >= self.policy.fire_score
+                and x[0] >= self.policy.min_pm25
+                and x[2] >= self.policy.min_fine_fraction
+            )
         if fire:
             s.clear_since = None
             if s.since is None:
                 s.since = t
-            if t - s.since >= PERSIST:
+            if t - s.since >= self.policy.persist_s:
                 if s.health == "OK":
                     s.evidence = t
                 else:
@@ -315,7 +350,7 @@ class Engine:
                         if (
                             o
                             and o.health == "OK"
-                            and 0 <= t - o.evidence <= NEIGHBOUR_TTL
+                            and 0 <= t - o.evidence <= self.policy.neighbour_ttl_s
                         ):
                             events.append(
                                 self.event(
@@ -335,7 +370,7 @@ class Engine:
             s.since = None
             if s.clear_since is None:
                 s.clear_since = t
-            if t - s.clear_since >= 60:
+            if t - s.clear_since >= self.policy.clear_s:
                 s.alarm = s.risk = False
                 s.evidence = -math.inf
         self.accepted += 1
