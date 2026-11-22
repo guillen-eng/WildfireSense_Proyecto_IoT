@@ -35,6 +35,10 @@ class DetectionPolicy:
     persist_s: float = PERSIST
     neighbour_ttl_s: float = NEIGHBOUR_TTL
     clear_s: float = 60.0
+    isolated_enabled: bool = False  # keep V4 behavior until candidate validated
+    isolated_persist_s: float = 180.0
+    isolated_min_fire_score: float = 0.80
+    isolated_min_pm25_rise: float = 8.0
 
     def __post_init__(self):
         checks = (
@@ -44,8 +48,14 @@ class DetectionPolicy:
             (self.persist_s, 0, float("inf")),
             (self.neighbour_ttl_s, 0, float("inf")),
             (self.clear_s, 0, float("inf")),
+            (self.isolated_persist_s, 0, float("inf")),
+            (self.isolated_min_fire_score, 0, 1),
+            (self.isolated_min_pm25_rise, 0, float("inf")),
         )
-        if any(not math.isfinite(v) or not lo <= v <= hi for v, lo, hi in checks):
+        if (type(self.isolated_enabled) is not bool
+                or any(not math.isfinite(v) or not lo <= v <= hi for v, lo, hi in checks)
+                or self.isolated_min_fire_score < self.fire_score
+                or self.isolated_persist_s < self.persist_s):
             raise ValueError("Invalid detection policy thresholds")
 
 
@@ -124,6 +134,7 @@ class Node:
     evidence: float = -math.inf
     risk: bool = False
     alarm: bool = False
+    unconfirmed_alarm: bool = False
     clear_since: float | None = None
     clock: str = "simulated"
 
@@ -156,7 +167,8 @@ class Engine:
             ),
             decision=kind,
             reading_timestamp=iso(t),
-            priority={"sos_alert": "critical", "suspected_fire": "high"}.get(
+            priority={"sos_alert": "critical", "suspected_fire": "high",
+                      "unconfirmed_fire_risk": "high"}.get(
                 kind, "advisory"
             ),
             model=self.forest.version,
@@ -177,7 +189,7 @@ class Engine:
             if rid == run and s.health != "FALLO" and t - s.t > max(45, 2.5 * s.period):
                 s.health = "FALLO"
                 s.evidence = -math.inf
-                s.risk = s.alarm = False
+                s.risk = s.alarm = s.unconfirmed_alarm = False
                 s.since = s.clear_since = None
                 events.append(
                     self.event(
@@ -272,7 +284,7 @@ class Engine:
                 s.identical = 0
                 s.last_values = None
                 s.since = s.clear_since = None
-                s.risk = s.alarm = False
+                s.risk = s.alarm = s.unconfirmed_alarm = False
                 s.evidence = -math.inf
         if period is not None:
             s.period = period
@@ -366,12 +378,37 @@ class Engine:
                             )
                             s.alarm = True
                             break
+                # Unconfirmed high-risk path: only if no fresh, healthy neighbour
+                # is available, not if available neighbours disagree. It is
+                # explicitly distinct from a spatially corroborated fire alert.
+                if (self.policy.isolated_enabled and self.mode == "ml"
+                        and not s.alarm and not s.unconfirmed_alarm
+                        and s.health == "OK" and score is not None
+                        and t - s.since >= self.policy.isolated_persist_s
+                        and score >= self.policy.isolated_min_fire_score
+                        and x[3] >= self.policy.isolated_min_pm25_rise):
+                    healthy_neighbour_present = any(
+                        (peer := self.nodes.get((run, other))) is not None
+                        and peer.health == "OK"
+                        and 0 <= t - peer.t <= max(45.0, 2.5 * peer.period)
+                        for other in neighbours(node)
+                    )
+                    if not healthy_neighbour_present:
+                        events.append(self.event(
+                            run, node, boot, seq, t, "unconfirmed_fire_risk",
+                            confirmation="unconfirmed",
+                            reason="no_fresh_healthy_neighbour",
+                            pm25_rise=round(x[3], 2),
+                            persistence_s=round(t - s.since, 1),
+                            **info,
+                        ))
+                        s.unconfirmed_alarm = True
         else:
             s.since = None
             if s.clear_since is None:
                 s.clear_since = t
             if t - s.clear_since >= self.policy.clear_s:
-                s.alarm = s.risk = False
+                s.alarm = s.risk = s.unconfirmed_alarm = False
                 s.evidence = -math.inf
         self.accepted += 1
         return (cls, score), events
