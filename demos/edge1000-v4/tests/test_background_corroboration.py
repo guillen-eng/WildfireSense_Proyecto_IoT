@@ -20,7 +20,7 @@ class AlwaysFire:
         return "slow_fire", 0.96
 
 
-def replay(policy, *, trend=False, nodes=("node_0001", "node_0002")):
+def replay(policy, *, trend=False, warming=False, nodes=("node_0001", "node_0002")):
     engine = Engine(forest=AlwaysFire(), policy=policy)
     events = []
     for i in range(65):
@@ -29,7 +29,7 @@ def replay(policy, *, trend=False, nodes=("node_0001", "node_0002")):
             pm = 50.0 + (i * 5.0 if trend else 0)
             _, made = engine.evaluate(
                 "gate-test", node, "boot", i + 1, i * 10.0,
-                (pm, 1.5 * pm, 25.0, 55.0), period=10,
+                (pm, 1.5 * pm, 25.0 + (0.6 * i if warming else 0.0), 55.0), period=10,
             )
             events.extend(made)
     return [e for e in events if e["decision"] == "suspected_fire"]
@@ -59,6 +59,15 @@ class CorroborationTrendTests(unittest.TestCase):
         self.assertEqual(alarms[0]["corroboration_filter"], "dual_pm25_trend")
         self.assertTrue(alarms[0]["neighbour"])
 
+    def test_temperature_is_independent_conditional_signal(self):
+        policy = DetectionPolicy(
+            corroboration_trend_enabled=True,
+            corroboration_min_pm25_rise=4.0,
+            corroboration_min_temp_rise=0.5,
+        )
+        self.assertEqual(replay(policy, trend=True, warming=False), [])
+        self.assertTrue(replay(policy, trend=True, warming=True))
+
     def test_no_spatial_confirm_with_single_node(self):
         policy = DetectionPolicy(corroboration_trend_enabled=True)
         self.assertEqual(replay(policy, trend=True, nodes=("node_0001",)), [])
@@ -70,6 +79,8 @@ class CorroborationTrendTests(unittest.TestCase):
             {"corroboration_trend_ttl_s": math.inf},
             {"corroboration_trend_enabled": True, "corroboration_min_pm25_rise": 0.0},
             {"corroboration_trend_enabled": True, "corroboration_trend_ttl_s": 0.0},
+            {"corroboration_min_temp_rise": -0.5},
+            {"corroboration_min_temp_rise": math.nan},
         ):
             with self.subTest(kwargs=kwargs), self.assertRaises(ValueError):
                 DetectionPolicy(**kwargs)
