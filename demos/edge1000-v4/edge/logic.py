@@ -39,6 +39,7 @@ class DetectionPolicy:
     isolated_persist_s: float = 180.0
     isolated_min_fire_score: float = 0.80
     isolated_min_pm25_rise: float = 8.0
+    isolated_min_temperature_rise: float = 0.0  # opt-in second-channel gate
 
     def __post_init__(self):
         checks = (
@@ -51,6 +52,7 @@ class DetectionPolicy:
             (self.isolated_persist_s, 0, float("inf")),
             (self.isolated_min_fire_score, 0, 1),
             (self.isolated_min_pm25_rise, 0, float("inf")),
+            (self.isolated_min_temperature_rise, 0, float("inf")),
         )
         if (type(self.isolated_enabled) is not bool
                 or any(not math.isfinite(v) or not lo <= v <= hi for v, lo, hi in checks)
@@ -386,7 +388,8 @@ class Engine:
                         and s.health == "OK" and score is not None
                         and t - s.since >= self.policy.isolated_persist_s
                         and score >= self.policy.isolated_min_fire_score
-                        and x[3] >= self.policy.isolated_min_pm25_rise):
+                        and x[3] >= self.policy.isolated_min_pm25_rise
+                        and x[4] >= self.policy.isolated_min_temperature_rise):
                     healthy_neighbour_present = any(
                         (peer := self.nodes.get((run, other))) is not None
                         and peer.health == "OK"
@@ -399,6 +402,7 @@ class Engine:
                             confirmation="unconfirmed",
                             reason="no_fresh_healthy_neighbour",
                             pm25_rise=round(x[3], 2),
+                            temperature_rise=round(x[4], 3),
                             persistence_s=round(t - s.since, 1),
                             **info,
                         ))
