@@ -30,6 +30,8 @@ services:
     restart: unless-stopped
   cloud:
     <<: *runtime
+    build: {context: ., target: training}
+    image: wildfiresense-edge-ai:training
     command: ["python","-m","cloud.app"]
     depends_on:
       mosquitto: {condition: service_healthy}
@@ -37,7 +39,9 @@ services:
       MQTT_HOST: mosquitto
       CLOUD_DB_PATH: /app/state/cloud.sqlite
     ports: ["127.0.0.1:8090:8080"]
-    volumes: [cloud_state:/app/state]
+    volumes:
+      - cloud_state:/app/state
+      - ./models:/app/models
     restart: unless-stopped
   simulator:
     <<: *runtime

@@ -8,6 +8,7 @@ Rollback restores the previous registered version.
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 import threading
@@ -46,7 +47,10 @@ def _scenario_check(candidate, baseline):
     from lab.scenario_gate import DEFAULT_DIR, compare
 
     if not DEFAULT_DIR.exists():
-        return dict(approved=True, skipped="scenarios_unavailable")
+        # Promotion is advertised as conditional on the nine scenarios: absence blocks it.
+        if os.environ.get("ALLOW_MISSING_SCENARIOS") == "1":
+            return dict(approved=True, skipped="scenarios_unavailable")
+        return dict(approved=False, regressions=["scenarios_unavailable"])
     return compare(Path(candidate), Path(baseline))
 
 

@@ -60,6 +60,17 @@ def run_scenario(name, forest, directory=DEFAULT_DIR):
             "fire_detected": bool(fires),
             "no_alarm_before_start": not any(t < t0 for t in fires),
         }
+        # Neighbours must alarm before the (modelled) fire front reaches them.
+        lead = {}
+        for alias, number in truth.get("alias", {}).items():
+            arrival = truth["nodos_detalle"][str(number)]["llega_fuego_s"]
+            first = times("suspected_fire", number)
+            if alias != "N3" and arrival is not None:
+                lead[alias] = round(BASE_MS / 1000 + arrival - first[0], 1) if first else None
+        result["front_lead_s"] = lead
+        result["checks"]["neighbours_alarm_before_front"] = bool(lead) and all(
+            v is not None and v > 0 for v in lead.values()
+        )
     elif name == "sos_boton":
         sos = times("sos_alert", truth["nodo_evento"])
         result["delay_s"] = round(sos[0] - t0, 1) if sos else None
