@@ -2,7 +2,22 @@
 
 **Novedades V4 (20/11/2026):** puerta de validación para reentrenamiento (modelo candidato vs modelo desplegado, sin sobrescrituras por defecto); generador de observaciones etiquetadas **solo sintéticas** para demostrar ese circuito; buffer de reordenación **solo experimental y offline**. El motor Edge crítico, el SOS y el archivo `models/forest.json` mantienen la versión probada. Lee `docs/V4_VALIDACION_MODELOS.md` y `docs/V4_REORDENACION.md` antes de desplegar un candidato.
 
-**V4 no se ha ejecutado aún en Docker Desktop del equipo**; tests y demos validados en Python local. No ejecutar `docker compose down -v` si necesitas conservar el histórico.
+**Estado de la integración (22/11/2026):** V4 dispone de ensayos previos con Docker Desktop y 1.000 clientes MQTT documentados en `resultados/ensayos_docker_20261120.json`; la rama Edge IA está sometida a CI con pruebas de regresión y ensayos de umbrales. La implementación definitiva en los dos portátiles físicos continúa pendiente. No ejecutar `docker compose down -v` si necesitas conservar el histórico.
+
+## Estado de Edge AI y política B2 experimental (22/11/2026)
+
+El Random Forest oficial sigue siendo **`rf-a288fc78989a`**; clasificación local, alarmas corroboradas por vecino y SOS conservan el comportamiento original con `EDGE_ISOLATED_ESCALATION=0` (valor predeterminado). La nueva política para nodos sin vecinos está **implementada y validada solo en simulación**; no altera la versión base hasta activarla expresamente en la demo:
+
+```powershell
+# Modo B2 opcional para evaluación académica: nunca aplicarlo a incendios reales.
+docker compose -f docker-compose.yml -f docker-compose.edge-limits.yml -f docker-compose.edge-b2.yml up -d --build mosquitto edge
+docker compose -f docker-compose.yml -f docker-compose.edge-limits.yml -f docker-compose.edge-b2.yml exec mosquitto mosquitto_sub -h 127.0.0.1 -t wildfiresense/edge/status -C 1
+# Comprobar isolated_escalation_enabled: true en el JSON de estado.
+```
+
+B2 genera `unconfirmed_fire_risk` (**high pero explícitamente NO corroborada**) exclusivamente si faltan vecinos sanos recientes, aumenta PM2.5 rápido frente al fondo, la tendencia de temperatura es positiva y la evidencia persiste. **No se debe contar como `suspected_fire`.** La Cloud V4 la puede almacenar como `environmental_alert`, pero su panel actual todavía no distingue visualmente esa decisión; coordinar esa etiqueta con el compañero de Cloud.
+
+Evidencia y limitaciones: `docs/AI_THRESHOLDS.md`, `docs/POLITICA_B_SELLADO_Y_B2.md`, `docs/POLITICA_B_NODO_AISLADO.md`, GitHub Actions de la PR #9. La política B1 anterior se **rechazó** en la validación sellada (6/48 falsas alertas con fondo alto); B2, más conservadora, pasó un gate **solo sintético**. Faltan pruebas MQTT/recursos sobre el hardware de entrega. No se ha demostrado detección de incendios reales.
 
 ## Funcionalidad heredada de V3: IA Edge, incidentes y robustez
 
@@ -32,11 +47,11 @@ docker compose run --rm --no-deps -v "./resultados:/app/resultados" simulator py
 docker compose run --rm --no-deps -v "./resultados:/app/resultados" simulator python -m lab.robustness --loss 0.05 --duplicates 0.02 --jitter-s 10
 # Comprobar los incidentes agrupados en el nuevo panel
 Invoke-RestMethod http://localhost:8090/api/incidents
-# 35 tests, montados en el contenedor porque no van en la imagen runtime
+# Tests de la revisión actual, montados en el contenedor porque no van en la imagen runtime
 docker compose run --rm --no-deps -v "./tests:/app/tests:ro" simulator python -m unittest discover -s /app/tests -v
 ```
 
-Si el entorno anterior sigue abierto con nombre de proyecto Compose `wildfiresense-edge-ai`, se reutilizan sus servicios/volúmenes cuando se ejecuta desde esta carpeta. Haz copia del directorio anterior y usa la actualización controlada descrita en `docs/INTEGRACION_V3.md`. **No ejecutar `docker compose down -v`** si quieres conservar los históricos. El desarrollo no se ha subido a GitHub; la integración del equipo se realizará mediante Pull Request.
+Si el entorno anterior sigue abierto con nombre de proyecto Compose `wildfiresense-edge-ai`, se reutilizan sus servicios/volúmenes cuando se ejecuta desde esta carpeta. Haz copia del directorio anterior y usa la actualización controlada descrita en `docs/INTEGRACION_V3.md`. **No ejecutar `docker compose down -v`** si quieres conservar los históricos. La V4 está publicada en la PR #6 y las mejoras optativas de Edge IA en la PR #9, pendientes de revisión y fusión.
 
 **Interpretación**: los agrupamientos espaciales y las pruebas con pérdidas son hipótesis experimentales; no es un detector certificado ni se han probado enlaces radio físicos.
 

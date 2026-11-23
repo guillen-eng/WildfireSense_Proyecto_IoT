@@ -1,0 +1,47 @@
+name: WildfireSense Edge AI final B2 sealed test
+
+on:
+  push:
+    branches:
+      - feature/edge-ai-evidence-freeze
+    paths:
+      - "demos/edge1000-v4/lab/isolated_b2_sealed.py"
+      - ".github/workflows/edge-isolated-b2-sealed.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  b2-sealed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: demos/edge1000-v4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --no-index -r requirements.txt
+      - name: Reproduce fixed B2 on 801-812 (DO NOT retune)
+        run: python -m lab.isolated_b2_sealed --seeds 801 802 803 804 805 806 807 808 809 810 811 812 --out /tmp/wildfiresense-b2
+      - name: Read decision without promoting
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          x=json.loads(Path('/tmp/wildfiresense-b2/decision.json').read_text())
+          assert x['model']=='rf-a288fc78989a'
+          assert x['seeds']==list(range(801,813))
+          assert x['candidate']['isolated_min_temperature_rise']==0.5
+          print('Approved for limited synthetic demo:',x['approved_for_limited_synthetic_demo'])
+          print('Reasons for rejection:',x['reasons'])
+          print('NOT DEPLOYED: requires manual acceptance and Docker MQTT tests')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: edge-ai-isolated-B2-sealed-${{ github.sha }}
+          path: /tmp/wildfiresense-b2/
+          retention-days: 30

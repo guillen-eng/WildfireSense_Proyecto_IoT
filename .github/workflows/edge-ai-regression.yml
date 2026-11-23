@@ -1,0 +1,38 @@
+name: WildfireSense V4 Edge AI regression
+
+on:
+  push:
+    branches:
+      - feature/edge-ai-evidence-freeze
+  pull_request:
+    branches:
+      - feature/edge1000-v4-integration
+    paths:
+      - "demos/edge1000-v4/edge/**"
+      - "demos/edge1000-v4/lab/threshold_sensitivity.py"
+      - "demos/edge1000-v4/tests/**"
+      - ".github/workflows/edge-ai-regression.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  edge-ai-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: demos/edge1000-v4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install vendored MQTT client offline
+        run: python -m pip install --no-index -r requirements.txt
+      - name: Run existing regression and experimental policy tests
+        run: python -m unittest discover -s tests -v
+      - name: Smoke test sensitivity evaluator without modifying model
+        run: |
+          python -m lab.threshold_sensitivity --axis score --seeds 301 --out /tmp/wildfiresense-threshold-smoke
+          python -c "import json; from pathlib import Path; x=json.loads(Path('/tmp/wildfiresense-threshold-smoke/study.json').read_text()); assert x['candidate_count']==2; assert x['model']=='rf-a288fc78989a'; assert x['baseline']['fire_episodes']==2 and x['baseline']['negative_episodes']==4"

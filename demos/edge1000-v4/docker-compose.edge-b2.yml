@@ -1,0 +1,8 @@
+# Optional isolated-node policy B2 for a controlled academic demonstration.
+# The original docker-compose.yml remains conservative by default.
+# Use together with docker-compose.yml and docker-compose.edge-limits.yml.
+# This is NOT field-validated wildfire detection.
+services:
+  edge:
+    environment:
+      EDGE_ISOLATED_ESCALATION: "1"

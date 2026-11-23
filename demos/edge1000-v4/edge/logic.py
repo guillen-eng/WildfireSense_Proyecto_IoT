@@ -21,6 +21,46 @@ PERSIST = 30
 NEIGHBOUR_TTL = 180
 
 
+@dataclass(frozen=True)
+class DetectionPolicy:
+    """Experimental alarm thresholds, independent of trained forest weights.
+
+    Defaults reproduce the V4 detector byte-for-byte at the decision level.
+    Vary only in offline evaluation; do not auto-tune on held-out test data.
+    """
+
+    fire_score: float = FIRE_SCORE
+    min_pm25: float = 18.0
+    min_fine_fraction: float = 0.36
+    persist_s: float = PERSIST
+    neighbour_ttl_s: float = NEIGHBOUR_TTL
+    clear_s: float = 60.0
+    isolated_enabled: bool = False  # keep V4 behavior until candidate validated
+    isolated_persist_s: float = 120.0
+    isolated_min_fire_score: float = 0.80
+    isolated_min_pm25_rise: float = 8.0
+    isolated_min_temperature_rise: float = 0.5  # B2: pre-registered synthetic candidate
+
+    def __post_init__(self):
+        checks = (
+            (self.fire_score, 0, 1),
+            (self.min_pm25, 0, float("inf")),
+            (self.min_fine_fraction, 0, 1),
+            (self.persist_s, 0, float("inf")),
+            (self.neighbour_ttl_s, 0, float("inf")),
+            (self.clear_s, 0, float("inf")),
+            (self.isolated_persist_s, 0, float("inf")),
+            (self.isolated_min_fire_score, 0, 1),
+            (self.isolated_min_pm25_rise, 0, float("inf")),
+            (self.isolated_min_temperature_rise, 0, float("inf")),
+        )
+        if (type(self.isolated_enabled) is not bool
+                or any(not math.isfinite(v) or not lo <= v <= hi for v, lo, hi in checks)
+                or self.isolated_min_fire_score < self.fire_score
+                or self.isolated_persist_s < self.persist_s):
+            raise ValueError("Invalid detection policy thresholds")
+
+
 def iso(t):
     return datetime.fromtimestamp(t, timezone.utc).isoformat(timespec="milliseconds")
 
@@ -96,13 +136,17 @@ class Node:
     evidence: float = -math.inf
     risk: bool = False
     alarm: bool = False
+    unconfirmed_alarm: bool = False
     clear_since: float | None = None
     clock: str = "simulated"
 
 
 class Engine:
-    def __init__(self, forest=None, mode="ml", capacity=4096):
+    def __init__(self, forest=None, mode="ml", capacity=4096, policy=None):
         self.forest = forest or Forest()
+        self.policy = DetectionPolicy() if policy is None else policy
+        if not isinstance(self.policy, DetectionPolicy):
+            raise TypeError("policy must be DetectionPolicy")
         self.mode = mode
         self.capacity = capacity
         self.nodes = OrderedDict()
@@ -125,7 +169,8 @@ class Engine:
             ),
             decision=kind,
             reading_timestamp=iso(t),
-            priority={"sos_alert": "critical", "suspected_fire": "high"}.get(
+            priority={"sos_alert": "critical", "suspected_fire": "high",
+                      "unconfirmed_fire_risk": "high"}.get(
                 kind, "advisory"
             ),
             model=self.forest.version,
@@ -146,7 +191,7 @@ class Engine:
             if rid == run and s.health != "FALLO" and t - s.t > max(45, 2.5 * s.period):
                 s.health = "FALLO"
                 s.evidence = -math.inf
-                s.risk = s.alarm = False
+                s.risk = s.alarm = s.unconfirmed_alarm = False
                 s.since = s.clear_since = None
                 events.append(
                     self.event(
@@ -241,7 +286,7 @@ class Engine:
                 s.identical = 0
                 s.last_values = None
                 s.since = s.clear_since = None
-                s.risk = s.alarm = False
+                s.risk = s.alarm = s.unconfirmed_alarm = False
                 s.evidence = -math.inf
         if period is not None:
             s.period = period
@@ -284,12 +329,16 @@ class Engine:
             fire = x[0] >= 35.5 and x[2] >= 0.30 and (x[5] < 90 or x[4] > 1.5)
         else:
             cls, score = self.forest.predict(x)
-            fire = score >= FIRE_SCORE and x[0] >= 18 and x[2] >= 0.36
+            fire = (
+                score >= self.policy.fire_score
+                and x[0] >= self.policy.min_pm25
+                and x[2] >= self.policy.min_fine_fraction
+            )
         if fire:
             s.clear_since = None
             if s.since is None:
                 s.since = t
-            if t - s.since >= PERSIST:
+            if t - s.since >= self.policy.persist_s:
                 if s.health == "OK":
                     s.evidence = t
                 else:
@@ -315,7 +364,7 @@ class Engine:
                         if (
                             o
                             and o.health == "OK"
-                            and 0 <= t - o.evidence <= NEIGHBOUR_TTL
+                            and 0 <= t - o.evidence <= self.policy.neighbour_ttl_s
                         ):
                             events.append(
                                 self.event(
@@ -331,12 +380,39 @@ class Engine:
                             )
                             s.alarm = True
                             break
+                # Unconfirmed high-risk path: only if no fresh, healthy neighbour
+                # is available, not if available neighbours disagree. It is
+                # explicitly distinct from a spatially corroborated fire alert.
+                if (self.policy.isolated_enabled and self.mode == "ml"
+                        and not s.alarm and not s.unconfirmed_alarm
+                        and s.health == "OK" and score is not None
+                        and t - s.since >= self.policy.isolated_persist_s
+                        and score >= self.policy.isolated_min_fire_score
+                        and x[3] >= self.policy.isolated_min_pm25_rise
+                        and x[4] >= self.policy.isolated_min_temperature_rise):
+                    healthy_neighbour_present = any(
+                        (peer := self.nodes.get((run, other))) is not None
+                        and peer.health == "OK"
+                        and 0 <= t - peer.t <= max(45.0, 2.5 * peer.period)
+                        for other in neighbours(node)
+                    )
+                    if not healthy_neighbour_present:
+                        events.append(self.event(
+                            run, node, boot, seq, t, "unconfirmed_fire_risk",
+                            confirmation="unconfirmed",
+                            reason="no_fresh_healthy_neighbour",
+                            pm25_rise=round(x[3], 2),
+                            temperature_rise=round(x[4], 3),
+                            persistence_s=round(t - s.since, 1),
+                            **info,
+                        ))
+                        s.unconfirmed_alarm = True
         else:
             s.since = None
             if s.clear_since is None:
                 s.clear_since = t
-            if t - s.clear_since >= 60:
-                s.alarm = s.risk = False
+            if t - s.clear_since >= self.policy.clear_s:
+                s.alarm = s.risk = s.unconfirmed_alarm = False
                 s.evidence = -math.inf
         self.accepted += 1
         return (cls, score), events

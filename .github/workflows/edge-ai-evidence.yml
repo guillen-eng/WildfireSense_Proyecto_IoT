@@ -1,0 +1,63 @@
+name: WildfireSense Edge AI evidence reports
+
+on:
+  push:
+    branches:
+      - feature/edge-ai-evidence-freeze
+    paths:
+      - "demos/edge1000-v4/edge/**"
+      - "demos/edge1000-v4/lab/threshold_sensitivity.py"
+      - "demos/edge1000-v4/lab/ood_stress.py"
+      - "demos/edge1000-v4/tests/**"
+      - ".github/workflows/edge-ai-evidence.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reproduce-edge-ai-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: demos/edge1000-v4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install vendored Paho MQTT offline
+        run: python -m pip install --no-index -r requirements.txt
+      - name: Unit and regression tests
+        run: python -m unittest discover -s tests -v
+      - name: Full threshold sensitivity on validation seeds 301-306
+        run: python -m lab.threshold_sensitivity --seeds 301 302 303 304 305 306 --out /tmp/wildfiresense-edge-evidence/sensitivity
+      - name: Synthetic distribution shift on never-tuned seeds 401-406
+        run: python -m lab.ood_stress --seeds 401 402 403 404 405 406 --out /tmp/wildfiresense-edge-evidence/stress
+      - name: Validate JSON metadata and print all results
+        run: |
+          python - <<'PY'
+          import csv
+          import json
+          from pathlib import Path
+          root=Path('/tmp/wildfiresense-edge-evidence')
+          sensitivity=json.loads((root/'sensitivity/study.json').read_text())
+          stress=json.loads((root/'stress/stress.json').read_text())
+          assert sensitivity['model']==stress['model']=='rf-a288fc78989a'
+          assert sensitivity['seeds']==[301,302,303,304,305,306]
+          assert stress['seeds']==[401,402,403,404,405,406]
+          assert sensitivity['candidate_count']==12
+          for p in [root/'sensitivity/configurations.csv',root/'stress/stress_summary.csv']:
+              rows=list(csv.DictReader(p.open()))
+              print('\n',p.name)
+              for row in rows:
+                  keep=('config','mode','high_detected','fire_episodes','negative_high_episodes','negative_advisory_episodes','detected_by_5m','detected_by_15m','detected_by_30m','delay_mean_s')
+                  print(' '.join(f'{k}={row[k]}' for k in keep if k in row))
+          PY
+      - name: Upload reproducible evidence CSV/JSON
+        uses: actions/upload-artifact@v4
+        with:
+          name: edge-ai-evidence-v4-${{ github.sha }}
+          path: /tmp/wildfiresense-edge-evidence/
+          retention-days: 30
