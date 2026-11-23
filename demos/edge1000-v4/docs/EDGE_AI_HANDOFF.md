@@ -67,3 +67,14 @@ Se documentó y evaluó el problema de `suspected_fire` incorrecto bajo contamin
 - **No se ha aprobado ningún nuevo filtro ni se ha alterado el detector V4 de la PR #9.** El Random Forest y el SOS permanecen intactos. La issue #11 sigue abierta.
 - El experimento rechazado permanece **sin fusionar**, y no debe describirse como un `fix` de robustez. Los números se refieren solo a episodios sintéticos, no a incendios reales.
 - Para la entrega: mostrar el problema y explicar el compromiso sensibilidad/especificidad; para corregirlo de verdad hacen falta datos externos con etiquetas y/o modalidades de sensor complementarias. No seguir ajustando sobre las mismas semillas.
+
+## Auditoría de fuentes externas (23/11/2026)
+
+Se inspeccionaron siete archivos reales de **RESISTO y EPA** (incluido Landis et al., 2021), con revisión de columnas, metadatos, calidad y alcances. Documento de decisión: [EDGE_DATOS_EXTERNOS_AUDITORIA.md](EDGE_DATOS_EXTERNOS_AUDITORIA.md).
+
+- RESISTO: 497.749 filas, 229 sensores y 4 ubicaciones; 55,67 % de humedad = -1; **sin PM2.5/PM10** y alerta de su sistema sin verificación independiente de fuego.
+- EPA Fases I/II: 1.680/1.987 filas, 33 quemas controladas en II; PM2.5, CO/CO2, T/RH **sin PM10**. PM2.5 >=35,5 µg/m³ ocurre también en 1.367/1.680 registros de aerosoles **sin combustión** en Fase I (no es predicción del RF).
+- EPA 2021: 12.176 filas a 10 s y 58 quema-ID, señales de gases **sin PM**. Konza/Tallgrass: 196/251 filas de gases sin PM.
+- **Decisión cerrada:** no inventar PM10 ni usar `fire_alert_status` como etiqueta humana; mantener el RF V4 sin cambios y no añadir CO/CO2 hasta una evaluación con medidas simultáneas y etiquetas independientes. #11 continúa abierto como límite científico, no un fallo de CI.
+- Ensayo MQTT prolongado recomendado: 1.000 clientes ×60 ciclos ×10 s = **60.000** lecturas/10 min con 0,5 CPU, 512 MiB, p95/p99, CPU/memoria/OOM/backlog. El ensayo corto de 6.000 sí está realizado; este largo **aún no**.
+- Overhead de aplicación ya medido en el ensayo corto: `in_publish_bytes=2.310.963` vs `in_payload_bytes=2.088.963` → **37 B de diferencia por lectura PUBLISH** (sin cabeceras TCP/IP y conexiones).
